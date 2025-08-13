@@ -7,7 +7,9 @@ import com.amrubio27.compose_superheroes.features.list.domain.Images
 import com.amrubio27.compose_superheroes.features.list.domain.PowerStats
 import com.amrubio27.compose_superheroes.features.list.domain.SuperHero
 import com.amrubio27.compose_superheroes.features.list.domain.Work
+import org.koin.core.annotation.Single
 
+@Single
 class SuperHeroRemoteDataSourceMock {
 
     fun getSuperHeroes(): Result<List<SuperHero>> {
