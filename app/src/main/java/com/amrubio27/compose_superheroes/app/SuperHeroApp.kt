@@ -2,6 +2,7 @@ package com.amrubio27.compose_superheroes.app
 
 import android.app.Application
 import com.amrubio27.compose_superheroes.di.AppModule
+import com.amrubio27.compose_superheroes.di.NetworkModule
 import com.amrubio27.compose_superheroes.features.list.di.SuperHeroModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -15,6 +16,7 @@ class SuperHeroApp : Application() {
             androidContext(this@SuperHeroApp)
             modules(
                 AppModule().module,
+                NetworkModule().module,
                 SuperHeroModule().module
             )
         }
