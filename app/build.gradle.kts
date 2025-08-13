@@ -64,6 +64,10 @@ dependencies {
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
 
+    //Gson
+
+    implementation(libs.gson)
+
 
     //Test
     testImplementation(libs.junit)
