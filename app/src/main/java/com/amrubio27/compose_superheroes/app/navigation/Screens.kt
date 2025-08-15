@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 object Home
 
 @Serializable
-object Detail
+data class Detail(
+    val id: Int
+)
 
 @Serializable
 object FeatureB

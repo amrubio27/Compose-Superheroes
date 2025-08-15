@@ -1,4 +1,4 @@
-package com.amrubio27.compose_superheroes.features.featureb
+package com.amrubio27.compose_superheroes.features.featureb.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

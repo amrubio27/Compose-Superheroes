@@ -5,7 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.amrubio27.compose_superheroes.features.featureb.FeatureBScreen
+import androidx.navigation.toRoute
+import com.amrubio27.compose_superheroes.features.detail.presentation.SuperHeroesDetailScreen
+import com.amrubio27.compose_superheroes.features.featureb.presentation.FeatureBScreen
 import com.amrubio27.compose_superheroes.features.list.presentation.SuperheroesListScreen
 
 @Composable
@@ -19,14 +21,20 @@ fun NavigationWrapper(
     ) {
         composable<Home> {
             SuperheroesListScreen(
-                navigateToDetail = {
-                    navController.navigate(Detail) {}
-                })
+                navigateToDetail = { detailId ->
+                    navController.navigate(Detail(id = detailId)) {}
+                }
+            )
         }
 
-        composable<Detail> {
-            // Placeholder for Detail screen
-            // DetailScreen()
+        composable<Detail> { navBackStackEntry ->
+            val detail = navBackStackEntry.toRoute<Detail>()
+            SuperHeroesDetailScreen(
+                id = detail.id,
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable<FeatureB> {

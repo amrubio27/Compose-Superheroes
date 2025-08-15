@@ -61,7 +61,7 @@ fun SuperheroesListScreen(
                 LazyColumn {
                     itemsIndexed(uiState.superHeroes, key = { _, item -> item.id }) { index, item ->
                         Row {
-                            SuperheroItem(hero = item)
+                            SuperheroItem(hero = item, navigateToDetail = navigateToDetail)
                         }
                     }
                 }
