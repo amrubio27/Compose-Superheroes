@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SuperheroItem
-import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.toItemModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -62,7 +61,7 @@ fun SuperheroesListScreen(
                 LazyColumn {
                     itemsIndexed(uiState.superHeroes, key = { _, item -> item.id }) { index, item ->
                         Row {
-                            SuperheroItem(hero = item.toItemModel())
+                            SuperheroItem(hero = item)
                         }
                     }
                 }

@@ -3,7 +3,8 @@ package com.amrubio27.compose_superheroes.features.list.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amrubio27.compose_superheroes.features.list.domain.GetSuperHeroesListUseCase
-import com.amrubio27.compose_superheroes.features.list.domain.SuperHero
+import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SuperHeroItemModel
+import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.toItemModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,14 +27,21 @@ class SuperHeroesListViewModel(
                 onSuccess = { heroes ->
                     _uiState.update {
                         it.copy(
-                            superHeroes = heroes,
+                            superHeroes = heroes.map { hero ->
+                                hero.toItemModel()
+                            },
                             isLoading = false,
                             error = null
                         )
                     }
                 },
                 onFailure = { error ->
-                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = error.message
+                        )
+                    }
                 }
             )
         }
@@ -41,7 +49,7 @@ class SuperHeroesListViewModel(
 }
 
 data class SuperHeroesListUiState(
-    val superHeroes: List<SuperHero> = emptyList(),
+    val superHeroes: List<SuperHeroItemModel> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )
