@@ -22,4 +22,17 @@ class SuperHeroDataRepositoryImpl(
             Result.success(superHeroesFromLocal)
         }
     }
+
+    override suspend fun getHeroById(id: Int): Result<SuperHero> {
+        // First try to get from local cache
+        val localHeroes = localDataSource.getAll()
+        val localHero = localHeroes.find { it.id == id }
+        
+        return if (localHero != null) {
+            Result.success(localHero)
+        } else {
+            // If not found locally, fetch from remote
+            remoteDataSource.getHeroById(id)
+        }
+    }
 }
