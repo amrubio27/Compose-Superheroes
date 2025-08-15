@@ -14,25 +14,23 @@ class SuperHeroDataRepositoryImpl(
     override suspend fun getSuperHeroes(): Result<List<SuperHero>> {
         val superHeroesFromLocal = localDataSource.getAll()
         return if (superHeroesFromLocal.isEmpty()) {
-            remoteDataSource.getSuperHeroes()
-                .onSuccess { heroes ->
-                    localDataSource.saveAll(heroes)
-                }
+            remoteDataSource.getSuperHeroes().onSuccess { heroes ->
+                localDataSource.saveAll(heroes)
+            }
         } else {
             Result.success(superHeroesFromLocal)
         }
     }
 
     override suspend fun getHeroById(id: Int): Result<SuperHero> {
-        // First try to get from local cache
-        val localHeroes = localDataSource.getAll()
-        val localHero = localHeroes.find { it.id == id }
-        
-        return if (localHero != null) {
-            Result.success(localHero)
+        val localHero = localDataSource.getHeroById(id)
+
+        return if (localHero == null) {
+            remoteDataSource.getHeroById(id).onSuccess { hero ->
+                localDataSource.saveByHero(hero)
+            }
         } else {
-            // If not found locally, fetch from remote
-            remoteDataSource.getHeroById(id)
+            Result.success(localHero)
         }
     }
 }
