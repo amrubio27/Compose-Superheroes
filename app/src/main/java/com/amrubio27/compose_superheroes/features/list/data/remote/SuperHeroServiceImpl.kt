@@ -18,9 +18,9 @@ class SuperHeroServiceImpl(
         }
     }
 
-    /*override suspend fun getHeroById(id: Int): Result<SuperHeroApiModel> {
+    override suspend fun getHeroById(id: Int): Result<SuperHeroApiModel> {
         return safeApiCall {
-            client.get("$baseUrl/id/$id.json")
+            client.get("${baseUrl}id/$id.json")
         }
-    }*/
+    }
 }
