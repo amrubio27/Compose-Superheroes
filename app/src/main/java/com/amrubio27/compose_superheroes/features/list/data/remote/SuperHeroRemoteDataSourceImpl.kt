@@ -14,7 +14,7 @@ class SuperHeroRemoteDataSourceImpl(
         }
     }
 
-    /*override suspend fun getHeroById(id: Int): Result<SuperHero> {
+    override suspend fun getHeroById(id: Int): Result<SuperHero> {
         return superHeroService.getHeroById(id).map { it.toModel() }
-    }*/
+    }
 }
