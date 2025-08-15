@@ -1,5 +1,6 @@
 package com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SuperheroItem(hero: SuperHeroItemModel) {
+fun SuperheroItem(hero: SuperHeroItemModel, navigateToDetail: (Int) -> Unit) {
     Card(
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
-            .height(48.dp),
+            .height(48.dp)
+            .clickable(
+                onClick = { navigateToDetail(hero.id) }
+            ),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
