@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    kotlin("plugin.serialization") version "2.2.0"
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -39,6 +40,9 @@ android {
     buildFeatures {
         compose = true
     }
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -63,6 +67,11 @@ dependencies {
 
     //dataStore
     implementation(libs.androidx.datastore.preferences)
+
+    //Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     //koin
     implementation(libs.koin.android)
@@ -92,6 +101,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.androidx.room.testing)
 }
 
 ksp {
