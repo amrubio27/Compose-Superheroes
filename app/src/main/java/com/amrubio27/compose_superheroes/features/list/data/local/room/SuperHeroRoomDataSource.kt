@@ -10,7 +10,7 @@ import org.koin.core.annotation.Single
 
 interface SuperHeroLocalRoomSource {
     suspend fun getAll(ttlMillis: Long = DEFAULT_TTL_MILLIS): Result<List<SuperHero>>
-    suspend fun getHeroById(id: Int): SuperHero?
+    suspend fun getHeroById(id: Int): Result<SuperHero>
     suspend fun saveAll(heroes: List<SuperHero>)
     suspend fun saveByHero(hero: SuperHero)
     suspend fun clearAll()
@@ -39,8 +39,13 @@ class SuperHeroLocalRoomDataSourceImpl(
             }
         }
 
-    override suspend fun getHeroById(id: Int): SuperHero? = withContext(Dispatchers.IO) {
-        superHeroDao.getSuperHeroById(id)?.toDomain()
+    override suspend fun getHeroById(id: Int): Result<SuperHero> = withContext(Dispatchers.IO) {
+        val hero = superHeroDao.getSuperHeroById(id)
+        return@withContext if (hero != null && System.currentTimeMillis() - hero.timeStamp < SuperHeroLocalRoomSource.DEFAULT_TTL_MILLIS) {
+            Result.success(hero.toDomain())
+        } else {
+            Result.failure(ErrorApp.DataExpiredError)
+        }
     }
 
     override suspend fun saveAll(heroes: List<SuperHero>) = withContext(Dispatchers.IO) {

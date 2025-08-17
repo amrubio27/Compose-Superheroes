@@ -28,12 +28,14 @@ class SuperHeroDataRepositoryImpl(
     override suspend fun getHeroById(id: Int): Result<SuperHero> {
         val localHero = local.getHeroById(id)
 
-        return if (localHero == null) {
-            remote.getHeroById(id).onSuccess { hero ->
-                local.saveByHero(hero)
+        return if (localHero.isFailure) {
+            remote.getHeroById(id).apply {
+                onSuccess { hero ->
+                    local.saveByHero(hero)
+                }
             }
         } else {
-            Result.success(localHero)
+            localHero
         }
     }
 }
