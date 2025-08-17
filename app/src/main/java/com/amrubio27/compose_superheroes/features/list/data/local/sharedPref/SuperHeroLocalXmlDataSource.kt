@@ -1,4 +1,4 @@
-package com.amrubio27.compose_superheroes.features.list.data.local
+package com.amrubio27.compose_superheroes.features.list.data.local.sharedPref
 
 import android.content.Context
 import androidx.core.content.edit

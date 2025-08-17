@@ -1,5 +1,7 @@
 package com.amrubio27.compose_superheroes.features.list.di
 
+import com.amrubio27.compose_superheroes.features.list.data.local.dataStore.SuperHeroLocalDataStoreSource
+import com.amrubio27.compose_superheroes.features.list.data.local.datastore.SuperHeroLocalDataSourceSuspend
 import com.amrubio27.compose_superheroes.features.list.data.remote.SuperHeroService
 import com.amrubio27.compose_superheroes.features.list.data.remote.SuperHeroServiceImpl
 import io.ktor.client.HttpClient
@@ -13,4 +15,8 @@ class SuperHeroModule {
     @Single
     fun provideSuperHeroService(client: HttpClient, baseUrl: String): SuperHeroService =
         SuperHeroServiceImpl(client, baseUrl)
+
+    @Single
+    fun provideDataStoreSource(dataStoreSource: SuperHeroLocalDataStoreSource): SuperHeroLocalDataSourceSuspend =
+        dataStoreSource
 }
