@@ -17,6 +17,10 @@ class SuperHeroLocalDataStoreSource(
     private val dataStore: DataStore<Preferences>, private val json: Json
 ) : SuperHeroLocalDataSourceSuspend {
 
+    private companion object {
+        val SUPERHEROES_LIST_KEY = stringPreferencesKey("superheroes_list")
+    }
+
     // Decodifica un String a SuperHero de forma segura.
     private fun String.toHeroOrNull(): SuperHero? =
         runCatching { json.decodeFromString<SuperHero>(this) }.getOrNull()
@@ -25,14 +29,17 @@ class SuperHeroLocalDataStoreSource(
     private fun Preferences.extractHeroes(): List<SuperHero> =
         asMap().values.asSequence().mapNotNull { (it as? String)?.toHeroOrNull() }.toList()
 
-    override fun getAllFlow(): Flow<List<SuperHero>> = dataStore.data.map { it.extractHeroes() }
+    override fun getAllFlow(): Flow<List<SuperHero>> {
+        return dataStore.data.map { preferences ->
+            json.decodeFromString<List<SuperHero>>(preferences[SUPERHEROES_LIST_KEY] ?: "[]")
+        }
+    }
 
     override suspend fun getAll(): List<SuperHero> = getAllFlow().first()
 
     override fun getHeroByIdFlow(id: Int): Flow<SuperHero?> {
-        val key = stringPreferencesKey(id.toString())
-        return dataStore.data.map { prefs ->
-            prefs[key]?.toHeroOrNull()
+        return getAllFlow().map { heroes ->
+            heroes.find { it.id == id }
         }
     }
 
@@ -40,18 +47,30 @@ class SuperHeroLocalDataStoreSource(
 
     override suspend fun saveAll(superHeroes: List<SuperHero>) {
         dataStore.edit { preferences ->
-            preferences.clear()
-            superHeroes.forEach { hero ->
-                val key = stringPreferencesKey(hero.id.toString())
-                preferences[key] = json.encodeToString(hero)
-            }
+            preferences[SUPERHEROES_LIST_KEY] = json.encodeToString(superHeroes)
         }
     }
 
     override suspend fun saveByHero(superHero: SuperHero) {
         dataStore.edit { preferences ->
-            val key = stringPreferencesKey(superHero.id.toString())
-            preferences[key] = json.encodeToString(superHero)
+            // 1. Leemos la lista actual que está en el DataStore.
+            val currentJson = preferences[SUPERHEROES_LIST_KEY]
+            val heroes = if (currentJson != null) {
+                json.decodeFromString<MutableList<SuperHero>>(currentJson)
+            } else {
+                mutableListOf()
+            }
+
+            // 2. Buscamos si el héroe ya existe para reemplazarlo o añadirlo.
+            val existingIndex = heroes.indexOfFirst { it.id == superHero.id }
+            if (existingIndex != -1) {
+                heroes[existingIndex] = superHero // Reemplaza
+            } else {
+                heroes.add(superHero) // Añade
+            }
+
+            // 3. Guardamos la lista actualizada de vuelta en el DataStore.
+            preferences[SUPERHEROES_LIST_KEY] = json.encodeToString(heroes)
         }
     }
 
