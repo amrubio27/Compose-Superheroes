@@ -38,4 +38,13 @@ class SuperHeroDataRepositoryImpl(
             localHero
         }
     }
+
+    override suspend fun deleteHeroById(id: Int): Result<Unit> {
+        return try {
+            local.deleteHeroById(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
