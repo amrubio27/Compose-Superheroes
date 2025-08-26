@@ -61,7 +61,10 @@ fun SuperheroesListScreen(
     }
 
     // Simplified message handling
-    LaunchedEffect(uiState.pendingDeletion, uiState.error) {
+    LaunchedEffect(
+        uiState.pendingDeletion,
+        uiState.error
+    ) {
         uiState.pendingDeletion?.let { pendingDeletion ->
             val result = snackbarHostState.showSnackbar(
                 message = "Superhéroe ${pendingDeletion.heroName} eliminado",

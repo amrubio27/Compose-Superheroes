@@ -42,7 +42,8 @@ class SuperHeroesListViewModel(
                                 hero.toItemModel()
                             },
                             isLoading = false,
-                            error = null
+                            error = null,
+                            pendingDeletion = null // SOLUTION B: Always reset transient state
                         )
                     }
                 },
@@ -92,10 +93,19 @@ class SuperHeroesListViewModel(
      * Restores a deleted superhero.
      */
     fun undoDelete() {
-        val pendingDeletion = _uiState.value.pendingDeletion ?: return
-
         undoJob?.cancel()
 
+        reLoadList() // #1 method: Re-fetch the list to restore the deleted hero
+        //reInsertHero() // #2 method: This method is not needed if we handle the restoration in deleteHero
+    }
+
+    fun reLoadList() {
+        fetchSuperHeroes()
+        _uiState.update { it.copy(pendingDeletion = null) }
+    }
+
+    fun reInsertHero() {
+        val pendingDeletion = _uiState.value.pendingDeletion ?: return
         // Find insertion position to maintain list order
         val currentHeroes = _uiState.value.superHeroes.toMutableList()
         val insertIndex = findInsertionIndex(currentHeroes, pendingDeletion.deletedHero)
