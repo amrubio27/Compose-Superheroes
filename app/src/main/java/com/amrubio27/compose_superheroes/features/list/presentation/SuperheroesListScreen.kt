@@ -50,8 +50,7 @@ private object ScreenConstants {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuperheroesListScreen(
-    viewModel: SuperHeroesListViewModel = koinViewModel(),
-    navigateToDetail: (Int) -> Unit
+    viewModel: SuperHeroesListViewModel = koinViewModel(), navigateToDetail: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -60,25 +59,22 @@ fun SuperheroesListScreen(
         viewModel.fetchSuperHeroes()
     }
 
-    // Simplified message handling
-    LaunchedEffect(
-        uiState.pendingDeletion,
-        uiState.error
-    ) {
+    LaunchedEffect(uiState.pendingDeletion) {
         uiState.pendingDeletion?.let { pendingDeletion ->
             val result = snackbarHostState.showSnackbar(
                 message = "Superhéroe ${pendingDeletion.heroName} eliminado",
                 actionLabel = "Deshacer",
                 duration = SnackbarDuration.Long
             )
-
             if (result == SnackbarResult.ActionPerformed) {
                 viewModel.undoDelete()
             } else {
                 viewModel.clearMessages()
             }
         }
+    }
 
+    LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
             snackbarHostState.showSnackbar(message = error)
             viewModel.clearMessages()
@@ -86,8 +82,7 @@ fun SuperheroesListScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { padding ->
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -110,33 +105,27 @@ fun SuperheroesListScreen(
             } else {
                 LazyColumn {
                     itemsIndexed(
-                        items = uiState.superHeroes,
-                        key = { _, hero -> hero.id }
-                    ) { _, hero ->
+                        items = uiState.superHeroes, key = { _, hero -> hero.id }) { _, hero ->
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { dismissValue ->
-                                when (dismissValue) {
-                                    SwipeToDismissBoxValue.StartToEnd,
-                                    SwipeToDismissBoxValue.EndToStart -> {
-                                        viewModel.deleteHero(hero.id, hero.name)
-                                        true
-                                    }
-
-                                    SwipeToDismissBoxValue.Settled -> false
+                                val shouldDelete =
+                                    (dismissValue != SwipeToDismissBoxValue.Settled) && (dismissValue == SwipeToDismissBoxValue.StartToEnd || dismissValue == SwipeToDismissBoxValue.EndToStart)
+                                if (shouldDelete) {
+                                    viewModel.deleteHero(hero.id, hero.name)
+                                    true
+                                } else {
+                                    false
                                 }
-                            }
-                        )
+                            })
 
                         SwipeToDismissBox(
                             state = dismissState,
                             backgroundContent = { DismissBackground(dismissState) },
                             content = {
                                 SuperheroItem(
-                                    hero = hero,
-                                    navigateToDetail = navigateToDetail
+                                    hero = hero, navigateToDetail = navigateToDetail
                                 )
-                            }
-                        )
+                            })
                     }
                 }
             }
