@@ -106,22 +106,10 @@ class SuperHeroesListViewModel(
 
     fun reInsertHero() {
         val pendingDeletion = _uiState.value.pendingDeletion ?: return
-        // Find insertion position to maintain list order
-        val currentHeroes = _uiState.value.superHeroes.toMutableList()
-        val insertIndex = findInsertionIndex(currentHeroes, pendingDeletion.deletedHero)
-        currentHeroes.add(insertIndex, pendingDeletion.deletedHero)
-
-        _uiState.update { it.copy(superHeroes = currentHeroes, pendingDeletion = null) }
+        restoreHero(pendingDeletion.deletedHero, null)
     }
 
-    /**
-     * Clears error messages and pending deletions.
-     */
-    fun clearMessages() {
-        _uiState.update { it.copy(error = null, pendingDeletion = null) }
-    }
-
-    private fun restoreHero(hero: SuperHeroItemModel, errorMessage: String) {
+    private fun restoreHero(hero: SuperHeroItemModel, errorMessage: String?) {
         val currentHeroes = _uiState.value.superHeroes.toMutableList()
         val insertIndex = findInsertionIndex(currentHeroes, hero)
         currentHeroes.add(insertIndex, hero)
@@ -133,6 +121,13 @@ class SuperHeroesListViewModel(
 
     private fun findInsertionIndex(list: List<SuperHeroItemModel>, hero: SuperHeroItemModel): Int {
         return list.indexOfFirst { it.id > hero.id }.takeIf { it != -1 } ?: list.size
+    }
+
+    /**
+     * Clears error messages and pending deletions.
+     */
+    fun clearMessages() {
+        _uiState.update { it.copy(error = null, pendingDeletion = null) }
     }
 }
 
