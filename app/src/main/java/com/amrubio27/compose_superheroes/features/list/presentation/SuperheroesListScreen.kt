@@ -64,7 +64,7 @@ fun SuperheroesListScreen(
             val result = snackbarHostState.showSnackbar(
                 message = "Superhéroe ${pendingDeletion.heroName} eliminado",
                 actionLabel = "Deshacer",
-                duration = SnackbarDuration.Long
+                duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
                 viewModel.undoDelete()
