@@ -46,17 +46,23 @@ fun SuperheroesListScreen(
         ) {
 
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                label = { Text("Search") },
+                value = uiState.searchQuery,
+                onValueChange = { viewModel.onSearchQueryChange(it) },
+                label = { Text("Search superhero") },
                 shape = RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.isLoading) {
-                Text("Cargando héroes...", modifier = Modifier.padding(16.dp))
+                Text("Loading heroes...", modifier = Modifier.padding(16.dp))
                 CircularProgressIndicator()
+            } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                Text(
+                    text = "No superheroes found with \"${uiState.searchQuery}\"",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             } else {
                 LazyColumn {
                     itemsIndexed(uiState.superHeroes, key = { _, item -> item.id }) { index, item ->

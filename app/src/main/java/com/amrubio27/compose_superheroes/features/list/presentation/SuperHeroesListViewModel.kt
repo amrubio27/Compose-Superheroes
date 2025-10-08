@@ -19,17 +19,34 @@ class SuperHeroesListViewModel(
     private val _uiState = MutableStateFlow(SuperHeroesListUiState())
     val uiState: StateFlow<SuperHeroesListUiState> = _uiState
 
+    private val allSuperHeroes = MutableStateFlow<List<SuperHeroItemModel>>(emptyList())
+
+    fun onSearchQueryChange(query: String) {
+        _uiState.update {
+            it.copy(
+                searchQuery = query,
+                superHeroes = if (query.isEmpty()) {
+                    allSuperHeroes.value
+                } else {
+                    allSuperHeroes.value.filter { hero ->
+                        hero.name.contains(query, ignoreCase = true)
+                    }
+                }
+            )
+        }
+    }
+
     fun fetchSuperHeroes() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(Dispatchers.IO) {
             val result = getSuperHeroesListUseCase()
             result.fold(
                 onSuccess = { heroes ->
+                    val heroModels = heroes.map { hero -> hero.toItemModel() }
+                    allSuperHeroes.update { heroModels }
                     _uiState.update {
                         it.copy(
-                            superHeroes = heroes.map { hero ->
-                                hero.toItemModel()
-                            },
+                            superHeroes = heroModels,
                             isLoading = false,
                             error = null
                         )
@@ -51,5 +68,6 @@ class SuperHeroesListViewModel(
 data class SuperHeroesListUiState(
     val superHeroes: List<SuperHeroItemModel> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val searchQuery: String = ""
 )
