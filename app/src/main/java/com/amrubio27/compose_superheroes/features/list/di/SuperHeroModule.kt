@@ -1,8 +1,8 @@
 package com.amrubio27.compose_superheroes.features.list.di
 
 import com.amrubio27.compose_superheroes.app.data.local.SuperHeroDatabase
+import com.amrubio27.compose_superheroes.features.list.data.local.dataStore.SuperHeroLocalDataSourceSuspend
 import com.amrubio27.compose_superheroes.features.list.data.local.dataStore.SuperHeroLocalDataStoreSource
-import com.amrubio27.compose_superheroes.features.list.data.local.datastore.SuperHeroLocalDataSourceSuspend
 import com.amrubio27.compose_superheroes.features.list.data.remote.SuperHeroService
 import com.amrubio27.compose_superheroes.features.list.data.remote.SuperHeroServiceImpl
 import io.ktor.client.HttpClient
