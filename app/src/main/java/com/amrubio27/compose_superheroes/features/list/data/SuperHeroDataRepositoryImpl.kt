@@ -38,4 +38,9 @@ class SuperHeroDataRepositoryImpl(
             localHero
         }
     }
+
+    override suspend fun deleteHeroById(id: Int): Result<Unit> {
+        // Por ahora solo borramos en local
+        return local.deleteHeroById(id)
+    }
 }

@@ -15,7 +15,7 @@ interface SuperHeroLocalRoomSource {
     suspend fun saveByHero(hero: SuperHero)
     suspend fun clearAll()
 
-    suspend fun deleteHeroById(id: Int)
+    suspend fun deleteHeroById(id: Int): Result<Unit>
 
     companion object {
         // TTL de 1 hora por defecto
@@ -63,7 +63,13 @@ class SuperHeroLocalRoomDataSourceImpl(
         superHeroDao.deleteAllSuperHeroes()
     }
 
-    override suspend fun deleteHeroById(id: Int) = withContext(Dispatchers.IO) {
-        superHeroDao.deleteSuperHeroById(id)
+    override suspend fun deleteHeroById(id: Int): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            superHeroDao.deleteSuperHeroById(id)
+        } catch (e: Exception) {
+            //The error handling discards the original exception information by always returning ErrorApp.UnknownError. Consider preserving the original exception message or type to aid debugging: Result.failure(ErrorApp.UnknownError.withCause(e)) or passing the exception message to provide more context about what went wrong during deletion.
+            return@withContext Result.failure(ErrorApp.UnknownError)
+        }
+        return@withContext Result.success(Unit)
     }
 }

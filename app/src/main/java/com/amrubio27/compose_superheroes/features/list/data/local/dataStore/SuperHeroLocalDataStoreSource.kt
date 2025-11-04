@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.amrubio27.compose_superheroes.features.list.data.local.datastore.SuperHeroLocalDataSourceSuspend
 import com.amrubio27.compose_superheroes.features.list.domain.SuperHero
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
