@@ -2,9 +2,8 @@ package com.amrubio27.compose_superheroes.features.list.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -72,34 +71,55 @@ fun SuperheroesListScreen(
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
                 .padding(horizontal = 16.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // Eliminamos el Spacer superior para que el stickyHeader funcione bien desde arriba
 
-            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                stickyHeader {
+                    // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        OutlinedTextField(
+                            value = uiState.searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChange(it) },
+                            label = { Text("Search superhero") },
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
 
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onSearchQueryChange(it) },
-                label = { Text("Search superhero") },
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (uiState.isLoading) {
-                Text("Loading heroes...", modifier = Modifier.padding(16.dp))
-                CircularProgressIndicator()
-            } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                Text(
-                    text = "No superheroes found with \"${uiState.searchQuery}\"",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else {
-                LazyColumn {
+                if (uiState.isLoading) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Loading heroes...", modifier = Modifier.padding(bottom = 8.dp))
+                            CircularProgressIndicator()
+                        }
+                    }
+                } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "No superheroes found with \"${uiState.searchQuery}\"",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                } else {
                     itemsIndexed(
                         items = uiState.superHeroes,
                         key = { _, item -> item.id }
