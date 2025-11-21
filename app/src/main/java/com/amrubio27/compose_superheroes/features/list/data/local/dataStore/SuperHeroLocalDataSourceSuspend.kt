@@ -1,4 +1,4 @@
-package com.amrubio27.compose_superheroes.features.list.data.local.datastore
+package com.amrubio27.compose_superheroes.features.list.data.local.dataStore
 
 import com.amrubio27.compose_superheroes.features.list.domain.SuperHero
 import kotlinx.coroutines.flow.Flow

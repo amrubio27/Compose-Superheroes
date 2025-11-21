@@ -10,7 +10,7 @@ import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-@ComponentScan("com.amrubio27.compose_superheroes")
+@ComponentScan("com.amrubio27.compose_superheroes.di")
 class NetworkModule {
 
     @Single
