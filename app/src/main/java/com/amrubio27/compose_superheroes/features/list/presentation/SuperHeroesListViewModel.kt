@@ -96,16 +96,23 @@ class SuperHeroesListViewModel(
         }
     }
 
-    /**
-     * Borrado optimista: Oculta el héroe de la lista inmediatamente
-     * y programa el borrado real tras el timeout del Snackbar.
-     */
     fun deleteHeroOptimistic(heroId: Int) {
+        // Si ya hay un borrado pendiente, lo confirmamos inmediatamente antes de procesar el nuevo
+        _pendingDeletion.value?.let { previousPending ->
+            // 1. Confirmamos el borrado en la lista local (source of truth)
+            _allSuperHeroes.update { currentList ->
+                currentList.filter { it.id != previousPending.deletedHero.id }
+            }
+            // 2. Lanzamos el borrado real inmediatamente (fire and forget)
+            viewModelScope.launch(Dispatchers.IO) {
+                deleteSuperHeroUseCase(previousPending.deletedHero.id)
+            }
+        }
+
         // Guardamos el héroe que vamos a "borrar" por si hay que deshacerlo
         val heroToDelete = _allSuperHeroes.value.find { it.id == heroId } ?: return
 
         // Actualizamos el estado de borrado pendiente.
-        // La UI se actualizará automáticamente gracias al combine.
         _pendingDeletion.value = OptimisticDeleteState(
             deletedHero = heroToDelete
         )
@@ -127,8 +134,6 @@ class SuperHeroesListViewModel(
                     _pendingDeletion.value = null
                 },
                 onFailure = { error ->
-                    // Si falla, revertimos (el null en pendingDeletion hará que reaparezca si no lo quitamos de allSuperHeroes,
-                    // pero como no lo hemos quitado de allSuperHeroes, simplemente limpiando pendingDeletion y mostrando error basta)
                     _pendingDeletion.value = null
                     _error.value = "Error al borrar: ${error.message}"
                 }
@@ -136,9 +141,6 @@ class SuperHeroesListViewModel(
         }
     }
 
-    /**
-     * Deshace el borrado optimista, restaurando el héroe a la lista.
-     */
     fun undoDelete() {
         deletionJob?.cancel()
         _pendingDeletion.value = null
