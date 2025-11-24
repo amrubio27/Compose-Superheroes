@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -17,6 +18,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuperheroesListScreen(
     viewModel: SuperHeroesListViewModel = koinViewModel(),
@@ -35,10 +38,6 @@ fun SuperheroesListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        viewModel.fetchSuperHeroes()
-    }
 
     // Efecto para mostrar el Snackbar cuando hay un borrado pendiente
     LaunchedEffect(uiState.pendingDeletion) {
@@ -58,8 +57,8 @@ fun SuperheroesListScreen(
                 SnackbarResult.Dismissed -> {
                     // El Snackbar se descartó sin acción (timeout)
                     // El borrado real ya se ejecutó en el ViewModel
-                    //podemos reformular el clearPendingDeletion como que elimine los pendientes si otro snackbar aparece
-                    //viewModel.clearPendingDeletion()
+                    // podemos reformular el clearPendingDeletion como que elimine los pendientes si otro snackbar aparece
+                    // viewModel.clearPendingDeletion()
                 }
             }
         }
@@ -77,60 +76,69 @@ fun SuperheroesListScreen(
         ) {
             // Eliminamos el Spacer superior para que el stickyHeader funcione bien desde arriba
 
-            LazyColumn(
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.refreshSuperHeroes() },
                 modifier = Modifier.fillMaxSize()
             ) {
-                stickyHeader {
-                    // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        OutlinedTextField(
-                            value = uiState.searchQuery,
-                            onValueChange = { viewModel.onSearchQueryChange(it) },
-                            label = { Text("Search superhero") },
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                if (uiState.isLoading) {
-                    item {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    stickyHeader {
+                        // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
                         Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background)
+                                .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("Loading heroes...", modifier = Modifier.padding(bottom = 8.dp))
-                            CircularProgressIndicator()
+                            OutlinedTextField(
+                                value = uiState.searchQuery,
+                                onValueChange = { viewModel.onSearchQueryChange(it) },
+                                label = { Text("Search superhero") },
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
-                } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                    item {
-                        Text(
-                            text = "No superheroes found with \"${uiState.searchQuery}\"",
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                } else {
-                    itemsIndexed(
-                        items = uiState.superHeroes,
-                        key = { _, item -> item.id }
-                    ) { _, item ->
-                        SwipeableSuperheroItem(
-                            hero = item,
-                            onDismiss = { heroId ->
-                                viewModel.deleteHeroOptimistic(heroId)
-                            },
-                            navigateToDetail = navigateToDetail
-                        )
+
+                    if (uiState.isLoading) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    "Loading heroes...",
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                                CircularProgressIndicator()
+                            }
+                        }
+                    } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = "No superheroes found with \"${uiState.searchQuery}\"",
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    } else {
+                        itemsIndexed(
+                            items = uiState.superHeroes,
+                            key = { _, item -> item.id }
+                        ) { _, item ->
+                            SwipeableSuperheroItem(
+                                hero = item,
+                                onDismiss = { heroId ->
+                                    viewModel.deleteHeroOptimistic(heroId)
+                                },
+                                navigateToDetail = navigateToDetail
+                            )
+                        }
                     }
                 }
             }

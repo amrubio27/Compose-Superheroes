@@ -6,7 +6,7 @@ import org.koin.core.annotation.Single
 class GetSuperHeroesListUseCase(
     private val repository: SuperHeroesRepository
 ) {
-    suspend operator fun invoke(): Result<List<SuperHero>> {
-        return repository.getSuperHeroes()
+    suspend operator fun invoke(forceRefresh: Boolean = false): Result<List<SuperHero>> {
+        return repository.getSuperHeroes(forceRefresh)
     }
 }

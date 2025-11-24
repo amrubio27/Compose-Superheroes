@@ -23,6 +23,12 @@ interface SuperHeroDao {
     @Query("DELETE FROM superheroes WHERE id = :id")
     suspend fun deleteSuperHeroById(id: Int)
 
+    @androidx.room.Transaction
+    suspend fun replaceAll(superheroes: List<SuperHeroEntity>) {
+        deleteAllSuperHeroes()
+        insertAll(superheroes)
+    }
+
     @Query("DELETE FROM superheroes")
     suspend fun deleteAllSuperHeroes()
 
