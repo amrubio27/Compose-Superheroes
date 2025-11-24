@@ -11,12 +11,19 @@ class SuperHeroDataRepositoryImpl(
     private val remote: SuperHeroRemoteDataSource,
     private val local: SuperHeroLocalRoomDataSourceImpl
 ) : SuperHeroesRepository {
-    override suspend fun getSuperHeroes(): Result<List<SuperHero>> {
-        val superHeroesFromLocal = local.getAll()
+    override suspend fun getSuperHeroes(forceRefresh: Boolean): Result<List<SuperHero>> {
+        val superHeroesFromLocal = if (forceRefresh) {
+            Result.failure(Exception("Force refresh"))
+        } else {
+            local.getAll()
+        }
 
         return if (superHeroesFromLocal.isFailure) {
             remote.getSuperHeroes().apply {
                 onSuccess { heroes ->
+                    if (forceRefresh) {
+                        local.clearAll()
+                    }
                     local.saveAll(heroes)
                 }
             }

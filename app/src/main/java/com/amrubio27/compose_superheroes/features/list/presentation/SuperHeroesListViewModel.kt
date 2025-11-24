@@ -6,7 +6,7 @@ import com.amrubio27.compose_superheroes.features.list.domain.DeleteSuperHeroUse
 import com.amrubio27.compose_superheroes.features.list.domain.GetSuperHeroesListUseCase
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SuperHeroItemModel
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.toItemModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,121 +30,174 @@ class SuperHeroesListViewModel(
 
     private var deletionJob: Job? = null
 
+    // --- INPUTS (Fuentes de Verdad) ---
     private val _allSuperHeroes = MutableStateFlow<List<SuperHeroItemModel>>(emptyList())
-    private val _isLoading = MutableStateFlow(false)
-    private val _error = MutableStateFlow<String?>(null)
-    private val _pendingDeletion = MutableStateFlow<OptimisticDeleteState?>(null)
     private val _searchQuery = MutableStateFlow("")
+    private val _pendingDeletion = MutableStateFlow<OptimisticDeleteState?>(null)
 
-    val uiState: StateFlow<SuperHeroesListUiState> = combine(
+    // Flags de UI aislados para evitar recomposiciones masivas
+    private val _uiFlags = MutableStateFlow(UiFlags())
+
+    // --- DERIVED STATE (Lógica Pura) ---
+    // Extraemos la lógica de filtrado para que el combine sea legible
+    @OptIn(FlowPreview::class)
+    private val _filteredHeroesFlow = combine(
         _allSuperHeroes,
-        _isLoading,
-        _error,
-        _pendingDeletion,
-        _searchQuery
-    ) { allHeroes, isLoading, error, pendingDeletion, searchQuery ->
-        val filteredHeroes = if (searchQuery.isEmpty()) {
-            allHeroes
-        } else {
-            allHeroes.filter { hero ->
-                hero.name.contains(searchQuery, ignoreCase = true)
-            }
-        }
+        _searchQuery,
+        _pendingDeletion
+    ) { heroes, query, pending ->
+        applyFilters(heroes, query, pending)
+    }
 
-        // Apply optimistic deletion filter if needed
-        val finalHeroes = if (pendingDeletion != null) {
-            filteredHeroes.filter { it.id != pendingDeletion.deletedHero.id }
-        } else {
-            filteredHeroes
-        }
-
+    // --- UI STATE (Salida Pública) ---
+    // CRÍTICO: Añadimos _searchQuery y _pendingDeletion aquí también.
+    // Aunque _filteredHeroesFlow ya depende de ellos, si usas .value dentro del lambda
+    // te arriesgas a "glitches" (milisegundos donde la lista está filtrada pero el texto del searchbox es viejo).
+    val uiState: StateFlow<SuperHeroesListUiState> = combine(
+        _filteredHeroesFlow,
+        _uiFlags,
+        _searchQuery,
+        _pendingDeletion
+    ) { filteredList, flags, query, pending ->
         SuperHeroesListUiState(
-            superHeroes = finalHeroes,
-            isLoading = isLoading,
-            error = error,
-            pendingDeletion = pendingDeletion,
-            searchQuery = searchQuery
+            superHeroes = filteredList,
+            isLoading = flags.isLoading,
+            isRefreshing = flags.isRefreshing,
+            error = flags.error,
+            pendingDeletion = pending,
+            searchQuery = query
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SuperHeroesListUiState()
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = SuperHeroesListUiState(isLoading = true)
     )
+
+    init {
+        fetchSuperHeroes()
+    }
+
+    // --- ACCIONES ---
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
 
     fun fetchSuperHeroes() {
-        _isLoading.value = true
-        _error.value = null
-        
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = getSuperHeroesListUseCase()
-            result.fold(
+        // Preferimos .update para garantizar atomicidad si hubiera concurrencia
+        _uiFlags.update { it.copy(isLoading = true, error = null) }
+
+        viewModelScope.launch { // Dispatchers.IO debería estar gestionado en el UseCase/Repo
+            getSuperHeroesListUseCase().fold(
                 onSuccess = { heroes ->
-                    val heroModels = heroes.map { hero -> hero.toItemModel() }
-                    _allSuperHeroes.value = heroModels
-                    _isLoading.value = false
-                    _error.value = null
+                    _allSuperHeroes.value = heroes.map { it.toItemModel() }
+                    _uiFlags.update { it.copy(isLoading = false) }
                 },
                 onFailure = { error ->
-                    _isLoading.value = false
-                    _error.value = error.message
+                    _uiFlags.update { it.copy(isLoading = false, error = error.message) }
+                }
+            )
+        }
+    }
+
+    fun refreshSuperHeroes() {
+        _uiFlags.update { it.copy(isRefreshing = true, error = null) }
+
+        viewModelScope.launch {
+            getSuperHeroesListUseCase(forceRefresh = true).fold(
+                onSuccess = { heroes ->
+                    _allSuperHeroes.value = heroes.map { it.toItemModel() }
+                    _uiFlags.update { it.copy(isRefreshing = false) }
+                },
+                onFailure = { error ->
+                    _uiFlags.update { it.copy(isRefreshing = false, error = error.message) }
                 }
             )
         }
     }
 
     fun deleteHeroOptimistic(heroId: Int) {
-        // Si ya hay un borrado pendiente, lo confirmamos inmediatamente antes de procesar el nuevo
+        // 1. Gestión de borrados rápidos consecutivos (Fast Deletion)
+        // Si el usuario borra el Item A y, antes de 5s, borra el Item B:
+        // Debemos confirmar el borrado de A inmediatamente antes de procesar B.
         _pendingDeletion.value?.let { previousPending ->
-            // 1. Confirmamos el borrado en la lista local (source of truth)
-            _allSuperHeroes.update { currentList ->
-                currentList.filter { it.id != previousPending.deletedHero.id }
-            }
-            // 2. Lanzamos el borrado real inmediatamente (fire and forget)
-            viewModelScope.launch(Dispatchers.IO) {
-                deleteSuperHeroUseCase(previousPending.deletedHero.id)
+            if (previousPending.deletedHero.id != heroId) {
+                commitDeletion(previousPending.deletedHero.id)
             }
         }
 
-        // Guardamos el héroe que vamos a "borrar" por si hay que deshacerlo
+        // 2. Preparar nuevo borrado optimista
         val heroToDelete = _allSuperHeroes.value.find { it.id == heroId } ?: return
 
-        // Actualizamos el estado de borrado pendiente.
-        _pendingDeletion.value = OptimisticDeleteState(
-            deletedHero = heroToDelete
-        )
+        // Actualizamos estado visual (el combine filtrará la lista automáticamente)
+        _pendingDeletion.value = OptimisticDeleteState(heroToDelete)
 
+        // Cancelamos el job anterior (el de espera), porque ya lo hemos commiteado arriba manualmente
         deletionJob?.cancel()
 
-        // Programamos el borrado real después de 5 segundos (duración del Snackbar)
-        deletionJob = viewModelScope.launch(Dispatchers.IO) {
+        // 3. Programar el borrado real (Delayed)
+        deletionJob = viewModelScope.launch {
             delay(SNACKBAR_DURATION_MILLIS)
+            commitDeletion(heroId)
+        }
+    }
 
+    fun undoDelete() {
+        // Al cancelar el job, el commitDeletion nunca ocurre.
+        deletionJob?.cancel()
+        // Al poner esto a null, el combine vuelve a mostrar el ítem original de _allSuperHeroes
+        _pendingDeletion.value = null
+    }
+
+    // --- HELPER FUNCTIONS ---
+
+    // Función privada para consolidar la lógica de "Hacer efectivo el borrado"
+    private fun commitDeletion(heroId: Int) {
+        viewModelScope.launch { // Lanzamos corrutina para la operación de red
             val result = deleteSuperHeroUseCase(heroId)
 
             result.fold(
                 onSuccess = {
-                    // Confirmamos el borrado eliminándolo de la lista maestra
-                    _allSuperHeroes.update { currentList ->
-                        currentList.filter { it.id != heroId }
+                    // CRÍTICO: Race Condition Fix
+                    // Solo limpiamos el pendingDeletion si coincide con el que acabamos de borrar.
+                    // Si el usuario borró otro item mientras esto se procesaba, no queremos quitarle el snackbar del nuevo.
+                    _pendingDeletion.update { current ->
+                        if (current?.deletedHero?.id == heroId) null else current
                     }
-                    _pendingDeletion.value = null
+
+                    // Eliminamos definitivamente de la lista maestra
+                    _allSuperHeroes.update { list -> list.filter { it.id != heroId } }
                 },
                 onFailure = { error ->
-                    _pendingDeletion.value = null
-                    _error.value = "Error al borrar: ${error.message}"
+                    // Si falla, restauramos la vista (quitamos el pending) y mostramos error
+                    _pendingDeletion.update { current ->
+                        if (current?.deletedHero?.id == heroId) null else current
+                    }
+                    _uiFlags.update { it.copy(error = "Error al borrar: ${error.message}") }
                 }
             )
         }
     }
 
-    fun undoDelete() {
-        deletionJob?.cancel()
-        _pendingDeletion.value = null
+    // Función pura de filtrado (Testing friendly)
+    private fun applyFilters(
+        heroes: List<SuperHeroItemModel>,
+        query: String,
+        pending: OptimisticDeleteState?
+    ): List<SuperHeroItemModel> {
+        return heroes
+            .filter { it.name.contains(query, ignoreCase = true) }
+            .let { list ->
+                if (pending != null) list.filter { it.id != pending.deletedHero.id } else list
+            }
     }
+
+    // Flags UI Helper
+    private data class UiFlags(
+        val isLoading: Boolean = false,
+        val isRefreshing: Boolean = false,
+        val error: String? = null
+    )
 }
 
 /**
@@ -158,6 +211,7 @@ data class OptimisticDeleteState(
 data class SuperHeroesListUiState(
     val superHeroes: List<SuperHeroItemModel> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val pendingDeletion: OptimisticDeleteState? = null,
     val searchQuery: String = ""
