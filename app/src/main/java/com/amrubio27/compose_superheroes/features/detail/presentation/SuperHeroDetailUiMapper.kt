@@ -6,6 +6,7 @@ fun SuperHero.toDetailUiModel(): SuperHeroDetailUiModel {
     return SuperHeroDetailUiModel(
         id = this.id,
         name = this.name,
-        slug = this.slug
+        slug = this.slug,
+        imageUrl = this.images.lg
     )
 }
