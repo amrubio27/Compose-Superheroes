@@ -14,6 +14,7 @@ interface SuperHeroLocalRoomSource {
     suspend fun saveAll(heroes: List<SuperHero>)
     suspend fun saveByHero(hero: SuperHero)
     suspend fun clearAll()
+    suspend fun refreshSuperHeroes(heroes: List<SuperHero>)
 
     suspend fun deleteHeroById(id: Int): Result<Unit>
 
@@ -61,6 +62,12 @@ class SuperHeroLocalRoomDataSourceImpl(
 
     override suspend fun clearAll() = withContext(Dispatchers.IO) {
         superHeroDao.deleteAllSuperHeroes()
+    }
+
+    override suspend fun refreshSuperHeroes(heroes: List<SuperHero>) = withContext(Dispatchers.IO) {
+        val currentTime = System.currentTimeMillis()
+        val entities = heroes.map { SuperHeroEntity.toEntity(it, currentTime) }
+        superHeroDao.replaceAll(entities)
     }
 
     override suspend fun deleteHeroById(id: Int): Result<Unit> = withContext(Dispatchers.IO) {

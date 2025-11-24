@@ -22,9 +22,10 @@ class SuperHeroDataRepositoryImpl(
             remote.getSuperHeroes().apply {
                 onSuccess { heroes ->
                     if (forceRefresh) {
-                        local.clearAll()
+                        local.refreshSuperHeroes(heroes)
+                    } else {
+                        local.saveAll(heroes)
                     }
-                    local.saveAll(heroes)
                 }
             }
         } else {

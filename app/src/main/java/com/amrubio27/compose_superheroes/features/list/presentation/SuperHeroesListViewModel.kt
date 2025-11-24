@@ -6,7 +6,6 @@ import com.amrubio27.compose_superheroes.features.list.domain.DeleteSuperHeroUse
 import com.amrubio27.compose_superheroes.features.list.domain.GetSuperHeroesListUseCase
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SuperHeroItemModel
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.toItemModel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +39,8 @@ class SuperHeroesListViewModel(
 
     // --- DERIVED STATE (Lógica Pura) ---
     // Extraemos la lógica de filtrado para que el combine sea legible
-    @OptIn(FlowPreview::class)
+    // --- DERIVED STATE (Lógica Pura) ---
+    // Extraemos la lógica de filtrado para que el combine sea legible
     private val _filteredHeroesFlow = combine(
         _allSuperHeroes,
         _searchQuery,
@@ -84,33 +84,33 @@ class SuperHeroesListViewModel(
     }
 
     fun fetchSuperHeroes() {
-        // Preferimos .update para garantizar atomicidad si hubiera concurrencia
-        _uiFlags.update { it.copy(isLoading = true, error = null) }
-
-        viewModelScope.launch { // Dispatchers.IO debería estar gestionado en el UseCase/Repo
-            getSuperHeroesListUseCase().fold(
-                onSuccess = { heroes ->
-                    _allSuperHeroes.value = heroes.map { it.toItemModel() }
-                    _uiFlags.update { it.copy(isLoading = false) }
-                },
-                onFailure = { error ->
-                    _uiFlags.update { it.copy(isLoading = false, error = error.message) }
-                }
-            )
-        }
+        loadSuperHeroes(isRefresh = false)
     }
 
     fun refreshSuperHeroes() {
-        _uiFlags.update { it.copy(isRefreshing = true, error = null) }
+        loadSuperHeroes(isRefresh = true)
+    }
+
+    private fun loadSuperHeroes(isRefresh: Boolean) {
+        _uiFlags.update {
+            if (isRefresh) it.copy(isRefreshing = true, error = null)
+            else it.copy(isLoading = true, error = null)
+        }
 
         viewModelScope.launch {
-            getSuperHeroesListUseCase(forceRefresh = true).fold(
+            getSuperHeroesListUseCase(forceRefresh = isRefresh).fold(
                 onSuccess = { heroes ->
                     _allSuperHeroes.value = heroes.map { it.toItemModel() }
-                    _uiFlags.update { it.copy(isRefreshing = false) }
+                    _uiFlags.update {
+                        if (isRefresh) it.copy(isRefreshing = false)
+                        else it.copy(isLoading = false)
+                    }
                 },
                 onFailure = { error ->
-                    _uiFlags.update { it.copy(isRefreshing = false, error = error.message) }
+                    _uiFlags.update {
+                        if (isRefresh) it.copy(isRefreshing = false, error = error.message)
+                        else it.copy(isLoading = false, error = error.message)
+                    }
                 }
             )
         }
