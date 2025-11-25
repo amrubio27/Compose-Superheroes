@@ -2,6 +2,7 @@ package com.amrubio27.compose_superheroes.features.list.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amrubio27.compose_superheroes.app.domain.ErrorApp
 import com.amrubio27.compose_superheroes.features.list.domain.DeleteSuperHeroUseCase
 import com.amrubio27.compose_superheroes.features.list.domain.GetSuperHeroesListUseCase
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SuperHeroItemModel
@@ -93,8 +94,11 @@ class SuperHeroesListViewModel(
 
     private fun loadSuperHeroes(isRefresh: Boolean) {
         _uiFlags.update {
-            if (isRefresh) it.copy(isRefreshing = true, error = null)
-            else it.copy(isLoading = true, error = null)
+            if (isRefresh) {
+                it.copy(isRefreshing = true, error = null)
+            } else {
+                it.copy(isLoading = true, error = null)
+            }
         }
 
         viewModelScope.launch {
@@ -102,14 +106,20 @@ class SuperHeroesListViewModel(
                 onSuccess = { heroes ->
                     _allSuperHeroes.value = heroes.map { it.toItemModel() }
                     _uiFlags.update {
-                        if (isRefresh) it.copy(isRefreshing = false)
-                        else it.copy(isLoading = false)
+                        if (isRefresh) {
+                            it.copy(isRefreshing = false)
+                        } else {
+                            it.copy(isLoading = false)
+                        }
                     }
                 },
                 onFailure = { error ->
                     _uiFlags.update {
-                        if (isRefresh) it.copy(isRefreshing = false, error = error.message)
-                        else it.copy(isLoading = false, error = error.message)
+                        if (isRefresh) {
+                            it.copy(isRefreshing = false, error = error as? ErrorApp)
+                        } else {
+                            it.copy(isLoading = false, error = error as? ErrorApp)
+                        }
                     }
                 }
             )
@@ -149,6 +159,10 @@ class SuperHeroesListViewModel(
         _pendingDeletion.value = null
     }
 
+    fun clearError() {
+        _uiFlags.update { it.copy(error = null) }
+    }
+
     // --- HELPER FUNCTIONS ---
 
     // Función privada para consolidar la lógica de "Hacer efectivo el borrado"
@@ -173,7 +187,7 @@ class SuperHeroesListViewModel(
                     _pendingDeletion.update { current ->
                         if (current?.deletedHero?.id == heroId) null else current
                     }
-                    _uiFlags.update { it.copy(error = "Error al borrar: ${error.message}") }
+                    _uiFlags.update { it.copy(error = error as? ErrorApp) }
                 }
             )
         }
@@ -196,7 +210,7 @@ class SuperHeroesListViewModel(
     private data class UiFlags(
         val isLoading: Boolean = false,
         val isRefreshing: Boolean = false,
-        val error: String? = null
+        val error: ErrorApp? = null
     )
 }
 
@@ -212,7 +226,7 @@ data class SuperHeroesListUiState(
     val superHeroes: List<SuperHeroItemModel> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
-    val error: String? = null,
+    val error: ErrorApp? = null,
     val pendingDeletion: OptimisticDeleteState? = null,
     val searchQuery: String = ""
 )

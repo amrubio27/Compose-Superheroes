@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Compose-Superheroes</string>
+    <string name="error_server_title">Server Error</string>
+    <string name="error_server_description">We are having trouble connecting to the server. Please try again later.</string>
+    <string name="error_network_title">Network Error</string>
+    <string name="error_network_description">Please check your internet connection and try again.</string>
+    <string name="error_unknown_title">Unknown Error</string>
+    <string name="error_unknown_description">Something went wrong. Please try again.</string>
+    <string name="retry">Retry</string>
 </resources>
