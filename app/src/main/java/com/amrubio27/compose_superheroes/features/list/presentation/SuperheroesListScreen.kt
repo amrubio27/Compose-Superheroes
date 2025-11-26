@@ -74,7 +74,7 @@ fun SuperheroesListScreen(
         if (uiState.error != null && uiState.superHeroes.isNotEmpty()) {
             val errorModel = errorMapper.map(uiState.error!!)
             val result = snackbarHostState.showSnackbar(
-                message = errorModel.description, // Or title, depending on what's more appropriate
+                message = errorModel.title,
                 actionLabel = context.getString(com.amrubio27.compose_superheroes.R.string.retry),
                 duration = SnackbarDuration.Short
             )
