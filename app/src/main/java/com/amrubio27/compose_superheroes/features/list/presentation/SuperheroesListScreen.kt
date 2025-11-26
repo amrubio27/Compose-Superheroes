@@ -89,11 +89,10 @@ fun SuperheroesListScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
-        val dimens = MaterialTheme.dimens
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = dimens.paddingMedium)
+                .padding(horizontal = MaterialTheme.dimens.paddingMedium)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -120,8 +119,8 @@ fun SuperheroesListScreen(
                                     .fillMaxWidth()
                                     .background(MaterialTheme.colorScheme.background)
                                     .padding(
-                                        bottom = dimens.paddingMedium,
-                                        top = dimens.paddingSmall
+                                        bottom = MaterialTheme.dimens.paddingMedium,
+                                        top = MaterialTheme.dimens.paddingSmall
                                     ),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -140,12 +139,12 @@ fun SuperheroesListScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(dimens.paddingMedium),
+                                        .padding(MaterialTheme.dimens.paddingMedium),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
                                         stringResource(R.string.loading_heroes),
-                                        modifier = Modifier.padding(bottom = dimens.paddingSmall)
+                                        modifier = Modifier.padding(bottom = MaterialTheme.dimens.paddingSmall)
                                     )
                                     CircularProgressIndicator()
                                 }
@@ -157,7 +156,7 @@ fun SuperheroesListScreen(
                                         R.string.no_superheroes_found,
                                         uiState.searchQuery
                                     ),
-                                    modifier = Modifier.padding(dimens.paddingMedium),
+                                    modifier = Modifier.padding(MaterialTheme.dimens.paddingMedium),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
