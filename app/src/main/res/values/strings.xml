@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Compose-Superheroes</string>
+
+    <!-- Error messages -->
     <string name="error_server_title">Server Error</string>
     <string name="error_server_description">We are having trouble connecting to the server. Please try again later.</string>
     <string name="error_network_title">Network Error</string>
@@ -11,4 +13,27 @@
     <string name="error_data_expired_title">Data Expired</string>
     <string name="error_data_expired_description">The data is outdated. Please refresh to get the latest information.</string>
     <string name="retry">Retry</string>
+
+    <!-- Superheroes list -->
+    <string name="hero_deleted">%s deleted</string>
+    <string name="undo">Undo</string>
+    <string name="search_superhero">Search superhero</string>
+    <string name="loading_heroes">Loading heroes…</string>
+    <string name="no_superheroes_found">No superheroes found with \"%s\"</string>
+
+    <!-- Superhero detail -->
+    <string name="detail_title">Detail</string>
+    <string name="hero_not_found">Hero not found</string>
+    <string name="could_not_load_image">Could not load image</string>
+
+    <!-- Content descriptions -->
+    <string name="content_description_back">Back</string>
+    <string name="content_description_delete_superhero">Delete superhero</string>
+
+    <!-- Feature B -->
+    <string name="feature_b_title">Feature B Screen</string>
+
+    <!-- Navigation -->
+    <string name="nav_superhero_list">Superhero List</string>
+    <string name="nav_feature_b">Feature B</string>
 </resources>

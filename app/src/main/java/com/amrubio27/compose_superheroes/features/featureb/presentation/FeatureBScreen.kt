@@ -11,22 +11,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.amrubio27.compose_superheroes.R
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 @Composable
 fun FeatureBScreen() {
     Scaffold { padding ->
+        val dimens = MaterialTheme.dimens
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = dimens.paddingMedium)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.padding(top = 16.dp))
+            Spacer(modifier = Modifier.padding(top = dimens.paddingMedium))
 
-            Text("Feature B Screen", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                stringResource(R.string.feature_b_title),
+                style = MaterialTheme.typography.headlineMedium
+            )
         }
     }
 }

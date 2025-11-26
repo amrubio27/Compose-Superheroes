@@ -13,12 +13,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.amrubio27.compose_superheroes.R
+import com.amrubio27.compose_superheroes.ui.theme.ContentAlpha
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 import kotlin.reflect.KClass
 
 /**
@@ -36,12 +39,12 @@ fun MyNavigationBarAdvanced(
 ) {
     val itemList = listOf(
         NavItem(
-            name = "SuperHeroList",
+            name = stringResource(R.string.nav_superhero_list),
             icon = Icons.AutoMirrored.Filled.List,
             route = Home
         ),
         NavItem(
-            name = "Feature-B",
+            name = stringResource(R.string.nav_feature_b),
             icon = Icons.Default.Person,
             route = FeatureB
         )
@@ -54,7 +57,7 @@ fun MyNavigationBarAdvanced(
     NavigationBar(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp
+        tonalElevation = MaterialTheme.dimens.elevationSmall
     ) {
         itemList.forEach { navItem ->
             // Usar hierarchy para verificar la ruta y manejar navegación anidada
@@ -99,10 +102,10 @@ fun RowScope.MyOwnItem(navItem: NavItem<out Any>, isSelected: Boolean, onClick: 
             Text(navItem.name)
         }, alwaysShowLabel = true, colors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.onSurface,
-            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
             indicatorColor = MaterialTheme.colorScheme.surface,
-            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            selectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
+            selectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
         )
     )
 

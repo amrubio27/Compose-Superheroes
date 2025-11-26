@@ -18,9 +18,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.ui.theme.ComposeSuperheroesTheme
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 @Composable
 fun ErrorScreen(
@@ -28,46 +28,48 @@ fun ErrorScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val dimens = MaterialTheme.dimens
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(dimens.paddingMedium),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Image(
             painter = painterResource(id = errorUiModel.image),
             contentDescription = null,
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(dimens.errorImageSize)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.paddingMedium))
         Text(
             text = errorUiModel.title,
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(dimens.paddingSmall))
         Text(
             text = errorUiModel.description,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(dimens.paddingLarge))
         Button(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, locale = "es")
+@Preview(showBackground = true, locale = "en")
 @Composable
 fun ErrorScreenPreview() {
     ComposeSuperheroesTheme {
         ErrorScreen(
             errorUiModel = ErrorUiModel(
                 image = R.drawable.ic_launcher_background,
-                title = "Network Error",
-                description = "Please check your internet connection."
+                title = stringResource(R.string.error_network_title),
+                description = stringResource(R.string.error_network_description)
             ),
             onRetry = {}
         )

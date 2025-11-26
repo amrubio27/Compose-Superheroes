@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -19,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.amrubio27.compose_superheroes.R
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 /**
  * Componente reutilizable que envuelve SuperheroItem con SwipeToDismissBox.
@@ -54,7 +57,7 @@ fun SwipeableSuperheroItem(
     // Animación de color del fondo según el progreso del swipe
     val backgroundColor by animateColorAsState(
         when (dismissState.targetValue) {
-            SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
+            SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
             else -> Color.Transparent
         },
         label = "background_color"
@@ -76,14 +79,14 @@ fun SwipeableSuperheroItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(backgroundColor)
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = MaterialTheme.dimens.paddingLarge),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Borrar superhéroe",
-                        tint = Color.White,
+                        contentDescription = stringResource(R.string.content_description_delete_superhero),
+                        tint = MaterialTheme.colorScheme.onError,
                         modifier = Modifier.scale(iconScale)
                     )
                 }

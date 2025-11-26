@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,12 +33,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.amrubio27.compose_superheroes.R
+import com.amrubio27.compose_superheroes.ui.theme.HeroImageShape
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -59,7 +61,7 @@ fun SuperHeroesDetailScreen(
         topBar = {
             DetailTopAppBar(
                 onNavigateBack = onNavigateBack,
-                title = uiState.superHero?.name ?: "Detail"
+                title = uiState.superHero?.name ?: stringResource(R.string.detail_title)
             )
         },
     ) { padding ->
@@ -85,7 +87,7 @@ fun SuperHeroesDetailScreen(
                     }
                 } ?: run {
                     Text(
-                        text = "Hero not found",
+                        text = stringResource(R.string.hero_not_found),
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.headlineMedium
                     )
@@ -97,10 +99,11 @@ fun SuperHeroesDetailScreen(
 
 @Composable
 fun HeroImageHeader(imageUrl: String, name: String) {
+    val dimens = MaterialTheme.dimens
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(dimens.heroImageHeight)
     ) {
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -111,7 +114,7 @@ fun HeroImageHeader(imageUrl: String, name: String) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                .clip(HeroImageShape),
             error = {
                 Column(
                     modifier = Modifier
@@ -123,12 +126,12 @@ fun HeroImageHeader(imageUrl: String, name: String) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = null,
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(dimens.iconSizeMedium),
                         tint = MaterialTheme.colorScheme.error
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(dimens.paddingSmall))
                     Text(
-                        text = "Could not load image",
+                        text = stringResource(R.string.could_not_load_image),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -140,11 +143,12 @@ fun HeroImageHeader(imageUrl: String, name: String) {
 
 @Composable
 fun HeroDetails(hero: SuperHeroDetailUiModel) {
+    val dimens = MaterialTheme.dimens
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(dimens.paddingMedium),
+        verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
     ) {
         Text(
             text = hero.name,
@@ -162,7 +166,7 @@ fun HeroDetails(hero: SuperHeroDetailUiModel) {
         )
 
         // Placeholder for more details if needed in the future
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(dimens.paddingMedium))
     }
 }
 
@@ -184,9 +188,9 @@ fun DetailTopAppBar(
             Icon(
                 modifier = Modifier
                     .clickable(onClick = onNavigateBack)
-                    .padding(8.dp),
+                    .padding(MaterialTheme.dimens.paddingSmall),
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.content_description_back),
                 tint = MaterialTheme.colorScheme.onSurface
             )
         },
