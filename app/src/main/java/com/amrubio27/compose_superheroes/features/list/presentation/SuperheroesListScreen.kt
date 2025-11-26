@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,12 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorMapper
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorScreen
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,10 +92,11 @@ fun SuperheroesListScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
+        val dimens = MaterialTheme.dimens
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = dimens.paddingMedium)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -122,14 +122,17 @@ fun SuperheroesListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(MaterialTheme.colorScheme.background)
-                                    .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
+                                    .padding(
+                                        bottom = dimens.paddingMedium,
+                                        top = dimens.paddingSmall
+                                    ),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 OutlinedTextField(
                                     value = uiState.searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChange(it) },
                                     label = { Text(stringResource(R.string.search_superhero)) },
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = MaterialTheme.shapes.medium,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
@@ -140,12 +143,12 @@ fun SuperheroesListScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(16.dp),
+                                        .padding(dimens.paddingMedium),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
                                         stringResource(R.string.loading_heroes),
-                                        modifier = Modifier.padding(bottom = 8.dp)
+                                        modifier = Modifier.padding(bottom = dimens.paddingSmall)
                                     )
                                     CircularProgressIndicator()
                                 }
@@ -157,7 +160,7 @@ fun SuperheroesListScreen(
                                         R.string.no_superheroes_found,
                                         uiState.searchQuery
                                     ),
-                                    modifier = Modifier.padding(16.dp),
+                                    modifier = Modifier.padding(dimens.paddingMedium),
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                             }
