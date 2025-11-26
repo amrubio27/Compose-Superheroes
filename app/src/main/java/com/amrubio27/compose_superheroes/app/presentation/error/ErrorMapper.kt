@@ -22,10 +22,8 @@ class ErrorMapper(private val context: Context) {
 
             ErrorApp.TimeoutError -> ErrorUiModel(
                 image = R.drawable.ic_launcher_background, // TODO: Replace with proper error image
-                title = context.getString(
-                    R.string.error_unknown_title
-                ), // Using unknown for timeout for now or create specific string
-                description = context.getString(R.string.error_unknown_description)
+                title = context.getString(R.string.error_timeout_title),
+                description = context.getString(R.string.error_timeout_description)
             )
 
             ErrorApp.UnknownError -> ErrorUiModel(
@@ -36,8 +34,8 @@ class ErrorMapper(private val context: Context) {
 
             ErrorApp.DataExpiredError -> ErrorUiModel(
                 image = R.drawable.ic_launcher_background, // TODO: Replace with proper error image
-                title = context.getString(R.string.error_unknown_title),
-                description = context.getString(R.string.error_unknown_description)
+                title = context.getString(R.string.error_data_expired_title),
+                description = context.getString(R.string.error_data_expired_description)
             )
         }
     }
