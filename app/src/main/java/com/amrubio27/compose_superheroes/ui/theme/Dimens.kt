@@ -28,12 +28,7 @@ data class Dimens(
 
     // Elevaciones
     val elevationSmall: Dp = 4.dp,
-    val elevationMedium: Dp = 8.dp,
-
-    // Spacers específicos
-    val spacerSmall: Dp = 8.dp,
-    val spacerMedium: Dp = 16.dp,
-    val spacerLarge: Dp = 24.dp
+    val elevationMedium: Dp = 8.dp
 )
 
 /**

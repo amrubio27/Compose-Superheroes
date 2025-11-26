@@ -45,15 +45,12 @@ fun SuperheroesListScreen(
     val context = LocalContext.current
     val errorMapper = remember { ErrorMapper(context) }
 
-    val heroDeletedMessage = stringResource(R.string.hero_deleted)
-    val undoLabel = stringResource(R.string.undo)
-
     // Efecto para mostrar el Snackbar cuando hay un borrado pendiente
     LaunchedEffect(uiState.pendingDeletion) {
         uiState.pendingDeletion?.let { deletion ->
             val result = snackbarHostState.showSnackbar(
-                message = heroDeletedMessage.format(deletion.deletedHero.name),
-                actionLabel = undoLabel,
+                message = context.getString(R.string.hero_deleted, deletion.deletedHero.name),
+                actionLabel = context.getString(R.string.undo),
                 duration = SnackbarDuration.Indefinite // Duracion indefinida para que se quite al hacer le job de borrado
             )
 
@@ -79,7 +76,7 @@ fun SuperheroesListScreen(
             val errorModel = errorMapper.map(uiState.error!!)
             val result = snackbarHostState.showSnackbar(
                 message = errorModel.title,
-                actionLabel = context.getString(com.amrubio27.compose_superheroes.R.string.retry),
+                actionLabel = context.getString(R.string.retry),
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {

@@ -129,7 +129,7 @@ fun HeroImageHeader(imageUrl: String, name: String) {
                         modifier = Modifier.size(dimens.iconSizeMedium),
                         tint = MaterialTheme.colorScheme.error
                     )
-                    Spacer(modifier = Modifier.height(dimens.spacerSmall))
+                    Spacer(modifier = Modifier.height(dimens.paddingSmall))
                     Text(
                         text = stringResource(R.string.could_not_load_image),
                         style = MaterialTheme.typography.bodyMedium,
@@ -148,7 +148,7 @@ fun HeroDetails(hero: SuperHeroDetailUiModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(dimens.paddingMedium),
-        verticalArrangement = Arrangement.spacedBy(dimens.spacerMedium)
+        verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
     ) {
         Text(
             text = hero.name,
@@ -166,7 +166,7 @@ fun HeroDetails(hero: SuperHeroDetailUiModel) {
         )
 
         // Placeholder for more details if needed in the future
-        Spacer(modifier = Modifier.height(dimens.spacerMedium))
+        Spacer(modifier = Modifier.height(dimens.paddingMedium))
     }
 }
 

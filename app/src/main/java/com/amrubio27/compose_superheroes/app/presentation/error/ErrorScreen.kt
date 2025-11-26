@@ -41,19 +41,19 @@ fun ErrorScreen(
             contentDescription = null,
             modifier = Modifier.size(dimens.errorImageSize)
         )
-        Spacer(modifier = Modifier.height(dimens.spacerMedium))
+        Spacer(modifier = Modifier.height(dimens.paddingMedium))
         Text(
             text = errorUiModel.title,
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(dimens.spacerSmall))
+        Spacer(modifier = Modifier.height(dimens.paddingSmall))
         Text(
             text = errorUiModel.description,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(dimens.spacerLarge))
+        Spacer(modifier = Modifier.height(dimens.paddingLarge))
         Button(onClick = onRetry) {
             Text(text = stringResource(id = R.string.retry))
         }
