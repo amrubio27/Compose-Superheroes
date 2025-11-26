@@ -25,8 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.amrubio27.compose_superheroes.app.presentation.error.ErrorMapper
+import com.amrubio27.compose_superheroes.app.presentation.error.ErrorScreen
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
 import org.koin.androidx.compose.koinViewModel
 
@@ -38,6 +41,8 @@ fun SuperheroesListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val errorMapper = remember { ErrorMapper(context) }
 
     // Efecto para mostrar el Snackbar cuando hay un borrado pendiente
     LaunchedEffect(uiState.pendingDeletion) {
@@ -64,6 +69,22 @@ fun SuperheroesListScreen(
         }
     }
 
+    // Effect to show Snackbar for errors when data exists
+    LaunchedEffect(uiState.error) {
+        if (uiState.error != null && uiState.superHeroes.isNotEmpty()) {
+            val errorModel = errorMapper.map(uiState.error!!)
+            val result = snackbarHostState.showSnackbar(
+                message = errorModel.title,
+                actionLabel = context.getString(com.amrubio27.compose_superheroes.R.string.retry),
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.refreshSuperHeroes()
+            }
+            viewModel.clearError()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
@@ -76,68 +97,75 @@ fun SuperheroesListScreen(
         ) {
             // Eliminamos el Spacer superior para que el stickyHeader funcione bien desde arriba
 
-            PullToRefreshBox(
-                isRefreshing = uiState.isRefreshing,
-                onRefresh = { viewModel.refreshSuperHeroes() },
-                modifier = Modifier.fillMaxSize()
-            ) {
-                LazyColumn(
+            if (uiState.error != null && uiState.superHeroes.isEmpty()) {
+                ErrorScreen(
+                    errorUiModel = errorMapper.map(uiState.error!!),
+                    onRetry = { viewModel.fetchSuperHeroes() }
+                )
+            } else {
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.refreshSuperHeroes() },
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    stickyHeader {
-                        // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            OutlinedTextField(
-                                value = uiState.searchQuery,
-                                onValueChange = { viewModel.onSearchQueryChange(it) },
-                                label = { Text("Search superhero") },
-                                shape = RoundedCornerShape(12.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-
-                    if (uiState.isLoading) {
-                        item {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        stickyHeader {
+                            // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                                    .padding(bottom = 16.dp, top = 8.dp), // Reduced top padding
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    "Loading heroes...",
-                                    modifier = Modifier.padding(bottom = 8.dp)
+                                OutlinedTextField(
+                                    value = uiState.searchQuery,
+                                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                                    label = { Text("Search superhero") },
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.fillMaxWidth()
                                 )
-                                CircularProgressIndicator()
                             }
                         }
-                    } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "No superheroes found with \"${uiState.searchQuery}\"",
-                                modifier = Modifier.padding(16.dp),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    } else {
-                        itemsIndexed(
-                            items = uiState.superHeroes,
-                            key = { _, item -> item.id }
-                        ) { _, item ->
-                            SwipeableSuperheroItem(
-                                hero = item,
-                                onDismiss = { heroId ->
-                                    viewModel.deleteHeroOptimistic(heroId)
-                                },
-                                navigateToDetail = navigateToDetail
-                            )
+
+                        if (uiState.isLoading) {
+                            item {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        "Loading heroes...",
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
+                            item {
+                                Text(
+                                    text = "No superheroes found with \"${uiState.searchQuery}\"",
+                                    modifier = Modifier.padding(16.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        } else {
+                            itemsIndexed(
+                                items = uiState.superHeroes,
+                                key = { _, item -> item.id }
+                            ) { _, item ->
+                                SwipeableSuperheroItem(
+                                    hero = item,
+                                    onDismiss = { heroId ->
+                                        viewModel.deleteHeroOptimistic(heroId)
+                                    },
+                                    navigateToDetail = navigateToDetail
+                                )
+                            }
                         }
                     }
                 }
