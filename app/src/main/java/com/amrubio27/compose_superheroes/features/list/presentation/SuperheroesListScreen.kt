@@ -26,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorMapper
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorScreen
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
@@ -44,12 +46,15 @@ fun SuperheroesListScreen(
     val context = LocalContext.current
     val errorMapper = remember { ErrorMapper(context) }
 
+    val heroDeletedMessage = stringResource(R.string.hero_deleted)
+    val undoLabel = stringResource(R.string.undo)
+
     // Efecto para mostrar el Snackbar cuando hay un borrado pendiente
     LaunchedEffect(uiState.pendingDeletion) {
         uiState.pendingDeletion?.let { deletion ->
             val result = snackbarHostState.showSnackbar(
-                message = "${deletion.deletedHero.name} eliminado",
-                actionLabel = "Deshacer",
+                message = heroDeletedMessage.format(deletion.deletedHero.name),
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Indefinite // Duracion indefinida para que se quite al hacer le job de borrado
             )
 
@@ -123,7 +128,7 @@ fun SuperheroesListScreen(
                                 OutlinedTextField(
                                     value = uiState.searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChange(it) },
-                                    label = { Text("Search superhero") },
+                                    label = { Text(stringResource(R.string.search_superhero)) },
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -139,7 +144,7 @@ fun SuperheroesListScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        "Loading heroes...",
+                                        stringResource(R.string.loading_heroes),
                                         modifier = Modifier.padding(bottom = 8.dp)
                                     )
                                     CircularProgressIndicator()
@@ -148,7 +153,10 @@ fun SuperheroesListScreen(
                         } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
                             item {
                                 Text(
-                                    text = "No superheroes found with \"${uiState.searchQuery}\"",
+                                    text = stringResource(
+                                        R.string.no_superheroes_found,
+                                        uiState.searchQuery
+                                    ),
                                     modifier = Modifier.padding(16.dp),
                                     style = MaterialTheme.typography.bodyLarge
                                 )

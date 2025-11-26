@@ -34,12 +34,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.amrubio27.compose_superheroes.R
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -59,7 +61,7 @@ fun SuperHeroesDetailScreen(
         topBar = {
             DetailTopAppBar(
                 onNavigateBack = onNavigateBack,
-                title = uiState.superHero?.name ?: "Detail"
+                title = uiState.superHero?.name ?: stringResource(R.string.detail_title)
             )
         },
     ) { padding ->
@@ -85,7 +87,7 @@ fun SuperHeroesDetailScreen(
                     }
                 } ?: run {
                     Text(
-                        text = "Hero not found",
+                        text = stringResource(R.string.hero_not_found),
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.headlineMedium
                     )
@@ -128,7 +130,7 @@ fun HeroImageHeader(imageUrl: String, name: String) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Could not load image",
+                        text = stringResource(R.string.could_not_load_image),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -186,7 +188,7 @@ fun DetailTopAppBar(
                     .clickable(onClick = onNavigateBack)
                     .padding(8.dp),
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.content_description_back),
                 tint = MaterialTheme.colorScheme.onSurface
             )
         },

@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.amrubio27.compose_superheroes.R
 
 /**
  * Componente reutilizable que envuelve SuperheroItem con SwipeToDismissBox.
@@ -82,7 +84,7 @@ fun SwipeableSuperheroItem(
                 if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Borrar superhéroe",
+                        contentDescription = stringResource(R.string.content_description_delete_superhero),
                         tint = Color.White,
                         modifier = Modifier.scale(iconScale)
                     )

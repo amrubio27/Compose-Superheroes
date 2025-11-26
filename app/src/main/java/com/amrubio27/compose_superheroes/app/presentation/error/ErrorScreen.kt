@@ -59,15 +59,16 @@ fun ErrorScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, locale = "es")
+@Preview(showBackground = true, locale = "en")
 @Composable
 fun ErrorScreenPreview() {
     ComposeSuperheroesTheme {
         ErrorScreen(
             errorUiModel = ErrorUiModel(
                 image = R.drawable.ic_launcher_background,
-                title = "Network Error",
-                description = "Please check your internet connection."
+                title = stringResource(R.string.error_network_title),
+                description = stringResource(R.string.error_network_description)
             ),
             onRetry = {}
         )
