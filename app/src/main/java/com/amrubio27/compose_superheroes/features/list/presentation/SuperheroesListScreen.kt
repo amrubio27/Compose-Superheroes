@@ -1,16 +1,16 @@
 package com.amrubio27.compose_superheroes.features.list.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -30,6 +30,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorMapper
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorScreen
+import com.amrubio27.compose_superheroes.app.presentation.error.ErrorUiModel
+import com.amrubio27.compose_superheroes.features.list.presentation.components.SuperheroesSearchBar
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
 import com.amrubio27.compose_superheroes.ui.theme.dimens
 import org.koin.androidx.compose.koinViewModel
@@ -45,37 +47,25 @@ fun SuperheroesListScreen(
     val context = LocalContext.current
     val errorMapper = remember { ErrorMapper(context) }
 
-    // Efecto para mostrar el Snackbar cuando hay un borrado pendiente
     LaunchedEffect(uiState.pendingDeletion) {
         uiState.pendingDeletion?.let { deletion ->
-            val result = snackbarHostState.showSnackbar(
-                message = context.getString(R.string.hero_deleted, deletion.deletedHero.name),
-                actionLabel = context.getString(R.string.undo),
-                duration = SnackbarDuration.Indefinite // Duracion indefinida para que se quite al hacer le job de borrado
-            )
-
-            when (result) {
-                SnackbarResult.ActionPerformed -> {
-                    // El usuario pulsó "Deshacer"
-                    viewModel.undoDelete()
-                }
-
-                SnackbarResult.Dismissed -> {
-                    // El Snackbar se descartó sin acción (timeout)
-                    // El borrado real ya se ejecutó en el ViewModel
-                    // podemos reformular el clearPendingDeletion como que elimine los pendientes si otro snackbar aparece
-                    // viewModel.clearPendingDeletion()
-                }
+            when (
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.hero_deleted, deletion.deletedHero.name),
+                    actionLabel = context.getString(R.string.undo),
+                    duration = SnackbarDuration.Indefinite
+                )
+            ) {
+                SnackbarResult.ActionPerformed -> viewModel.undoDelete()
+                SnackbarResult.Dismissed -> Unit
             }
         }
     }
 
-    // Effect to show Snackbar for errors when data exists
     LaunchedEffect(uiState.error) {
-        if (uiState.error != null && uiState.superHeroes.isNotEmpty()) {
-            val errorModel = errorMapper.map(uiState.error!!)
+        uiState.error?.takeIf { uiState.superHeroes.isNotEmpty() }?.let { error ->
             val result = snackbarHostState.showSnackbar(
-                message = errorModel.title,
+                message = errorMapper.map(error).description,
                 actionLabel = context.getString(R.string.retry),
                 duration = SnackbarDuration.Short
             )
@@ -87,80 +77,69 @@ fun SuperheroesListScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { padding ->
-        Column(
+        topBar = {
+            SuperheroesSearchBar(
+                query = uiState.searchQuery,
+                onQueryChange = { viewModel.onSearchQueryChange(it) },
+                modifier = Modifier.padding(horizontal = MaterialTheme.dimens.paddingMedium)
+            )
+        }, snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
+        Box(
             modifier = Modifier
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = MaterialTheme.dimens.paddingMedium)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(padding)
+                .padding(horizontal = MaterialTheme.dimens.paddingMedium),
+            contentAlignment = Alignment.Center
         ) {
-            // Eliminamos el Spacer superior para que el stickyHeader funcione bien desde arriba
+            when {
+                uiState.isLoading -> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            stringResource(R.string.loading_heroes),
+                            modifier = Modifier.padding(bottom = MaterialTheme.dimens.paddingSmall)
+                        )
+                        CircularProgressIndicator()
+                    }
+                }
 
-            if (uiState.error != null && uiState.superHeroes.isEmpty()) {
-                ErrorScreen(
-                    errorUiModel = errorMapper.map(uiState.error!!),
-                    onRetry = { viewModel.fetchSuperHeroes() }
-                )
-            } else {
-                PullToRefreshBox(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefresh = { viewModel.refreshSuperHeroes() },
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LazyColumn(
+                uiState.error != null && uiState.superHeroes.isEmpty() -> {
+                    ErrorScreen(
+                        errorUiModel = uiState.error?.let { errorMapper.map(it) } as ErrorUiModel,
+                        onRetry = { viewModel.fetchSuperHeroes() },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.no_superheroes_found,
+                                uiState.searchQuery
+                            ),
+                            modifier = Modifier.padding(MaterialTheme.dimens.paddingMedium),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+
+                else -> {
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.refreshSuperHeroes() },
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        stickyHeader {
-                            // Contenedor para el buscador con fondo para tapar el contenido al hacer scroll
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background)
-                                    .padding(
-                                        bottom = MaterialTheme.dimens.paddingMedium,
-                                        top = MaterialTheme.dimens.paddingSmall
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                OutlinedTextField(
-                                    value = uiState.searchQuery,
-                                    onValueChange = { viewModel.onSearchQueryChange(it) },
-                                    label = { Text(stringResource(R.string.search_superhero)) },
-                                    shape = MaterialTheme.shapes.medium,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-
-                        if (uiState.isLoading) {
-                            item {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(MaterialTheme.dimens.paddingMedium),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        stringResource(R.string.loading_heroes),
-                                        modifier = Modifier.padding(bottom = MaterialTheme.dimens.paddingSmall)
-                                    )
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        } else if (uiState.superHeroes.isEmpty() && uiState.searchQuery.isNotEmpty()) {
-                            item {
-                                Text(
-                                    text = stringResource(
-                                        R.string.no_superheroes_found,
-                                        uiState.searchQuery
-                                    ),
-                                    modifier = Modifier.padding(MaterialTheme.dimens.paddingMedium),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                            }
-                        } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                             itemsIndexed(
                                 items = uiState.superHeroes,
                                 key = { _, item -> item.id }
