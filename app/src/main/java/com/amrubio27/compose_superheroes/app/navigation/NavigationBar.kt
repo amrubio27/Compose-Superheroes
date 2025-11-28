@@ -1,6 +1,7 @@
 package com.amrubio27.compose_superheroes.app.navigation
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -13,7 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -55,7 +58,7 @@ fun MyNavigationBarAdvanced(
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
-        modifier = modifier,
+        modifier = modifier.clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = MaterialTheme.dimens.elevationSmall
     ) {

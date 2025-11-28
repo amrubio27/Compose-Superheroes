@@ -12,15 +12,41 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = PrimaryBlueDark,
+    onPrimary = OnPrimaryBlueDark,
+    primaryContainer = PrimaryContainerBlueDark,
+    onPrimaryContainer = OnPrimaryContainerBlueDark,
+    secondary = SecondaryRedDark,
+    onSecondary = OnSecondaryRedDark,
+    secondaryContainer = SecondaryContainerRedDark,
+    onSecondaryContainer = OnSecondaryContainerRedDark,
+    tertiary = TertiaryGoldDark,
+    onTertiary = OnTertiaryGoldDark,
+    tertiaryContainer = TertiaryContainerGoldDark,
+    onTertiaryContainer = OnTertiaryContainerGoldDark,
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    onBackground = Neutral90,
+    onSurface = Neutral90
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = PrimaryBlue,
+    onPrimary = OnPrimaryWhite,
+    primaryContainer = PrimaryContainerBlue,
+    onPrimaryContainer = OnPrimaryContainerBlue,
+    secondary = SecondaryRed,
+    onSecondary = OnSecondaryWhite,
+    secondaryContainer = SecondaryContainerRed,
+    onSecondaryContainer = OnSecondaryContainerRed,
+    tertiary = TertiaryGold,
+    onTertiary = OnTertiaryBlack,
+    tertiaryContainer = TertiaryContainerGold,
+    onTertiaryContainer = OnTertiaryContainerGold,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    onBackground = Neutral10,
+    onSurface = Neutral10
 )
 
 /**

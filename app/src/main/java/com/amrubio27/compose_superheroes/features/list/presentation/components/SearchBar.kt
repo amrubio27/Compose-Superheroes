@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -34,7 +35,13 @@ fun SuperheroesSearchBar(
             value = query,
             onValueChange = onQueryChange,
             label = { Text(stringResource(R.string.search_superhero)) },
-            shape = MaterialTheme.shapes.medium,
+            leadingIcon = {
+                androidx.compose.material3.Icon(
+                    imageVector = androidx.compose.material.icons.Icons.Default.Search,
+                    contentDescription = null
+                )
+            },
+            shape = MaterialTheme.shapes.large,
             modifier = Modifier.fillMaxWidth()
         )
     }
