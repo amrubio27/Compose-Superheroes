@@ -1,48 +1,36 @@
 package com.amrubio27.compose_superheroes.features.detail.presentation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.SubcomposeAsyncImage
-import coil.request.ImageRequest
-import com.amrubio27.compose_superheroes.R
-import com.amrubio27.compose_superheroes.ui.theme.HeroImageShape
-import com.amrubio27.compose_superheroes.ui.theme.dimens
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.AppearanceCard
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.BiographyCard
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.ConnectionsCard
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.DetailTopAppBar
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.ErrorState
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.HeroImageHeader
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.RadarChartContainer
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.SectionTitle
+import com.amrubio27.compose_superheroes.features.detail.presentation.components.WorkCard
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuperHeroesDetailScreen(
     viewModel: SuperHeroesDetailViewModel = koinViewModel(),
@@ -50,43 +38,40 @@ fun SuperHeroesDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             DetailTopAppBar(
                 onNavigateBack = onNavigateBack,
-                title = uiState.superHero?.name ?: stringResource(R.string.detail_title)
+                scrollBehavior = scrollBehavior
             )
         },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .background(MaterialTheme.colorScheme.background)
+                .padding(bottom = padding.calculateBottomPadding()) // Ignore top padding for immersive image
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            } else {
-                uiState.superHero?.let { hero ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        HeroImageHeader(imageUrl = hero.imageUrl, name = hero.name)
-                        HeroDetails(hero = hero)
-                    }
-                } ?: run {
-                    Text(
-                        text = stringResource(R.string.hero_not_found),
-                        modifier = Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.headlineMedium
+            when {
+                uiState.isLoading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
                     )
+                }
+
+                uiState.superHero != null -> {
+                    DetailContent(
+                        hero = uiState.superHero!!
+                    )
+                }
+
+                else -> {
+                    ErrorState()
                 }
             }
         }
@@ -94,106 +79,44 @@ fun SuperHeroesDetailScreen(
 }
 
 @Composable
-fun HeroImageHeader(imageUrl: String, name: String) {
-    val dimens = MaterialTheme.dimens
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(dimens.heroImageHeight)
-    ) {
-        SubcomposeAsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = name,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(HeroImageShape),
-            error = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = null,
-                        modifier = Modifier.size(dimens.iconSizeMedium),
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(dimens.paddingSmall))
-                    Text(
-                        text = stringResource(R.string.could_not_load_image),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        )
-    }
-}
-
-@Composable
-fun HeroDetails(hero: SuperHeroDetailUiModel) {
-    val dimens = MaterialTheme.dimens
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimens.paddingMedium),
-        verticalArrangement = Arrangement.spacedBy(dimens.paddingMedium)
-    ) {
-        Text(
-            text = hero.name,
-            style = MaterialTheme.typography.displaySmall.copy(
-                fontWeight = FontWeight.Bold,
-                letterSpacing = (-0.5).sp
-            ),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Text(
-            text = hero.slug,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        // Placeholder for more details if needed in the future
-        Spacer(modifier = Modifier.height(dimens.paddingMedium))
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DetailTopAppBar(
-    modifier: Modifier = Modifier,
-    onNavigateBack: () -> Unit,
-    title: String
+fun DetailContent(
+    hero: SuperHeroDetailUiModel
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        },
-        navigationIcon = {
-            Icon(
-                modifier = Modifier
-                    .clickable(onClick = onNavigateBack)
-                    .padding(MaterialTheme.dimens.paddingSmall),
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(R.string.content_description_back),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            scrolledContainerColor = MaterialTheme.colorScheme.surface
-        ),
-        modifier = modifier
-    )
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            HeroImageHeader(hero = hero)
+        }
+
+        item {
+            SectionTitle(title = "Power Stats")
+            RadarChartContainer(stats = hero.powerStats)
+        }
+
+        item {
+            SectionTitle(title = "Biography")
+            BiographyCard(bio = hero.biography)
+        }
+
+        item {
+            SectionTitle(title = "Appearance")
+            AppearanceCard(appearance = hero.appearance)
+        }
+
+        item {
+            SectionTitle(title = "Work")
+            WorkCard(work = hero.work)
+        }
+
+        item {
+            SectionTitle(title = "Connections")
+            ConnectionsCard(connections = hero.connections)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
 }
