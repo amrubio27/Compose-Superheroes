@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.amrubio27.compose_superheroes.features.detail.presentation.SuperHeroesDetailScreen
 import com.amrubio27.compose_superheroes.features.featureb.presentation.FeatureBScreen
 import com.amrubio27.compose_superheroes.features.list.presentation.SuperheroesListScreen
@@ -28,9 +27,8 @@ fun NavigationWrapper(
         }
 
         composable<Detail> { navBackStackEntry ->
-            val detail = navBackStackEntry.toRoute<Detail>()
-            SuperHeroesDetailScreen(
-                id = detail.id,
+
+        SuperHeroesDetailScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 }

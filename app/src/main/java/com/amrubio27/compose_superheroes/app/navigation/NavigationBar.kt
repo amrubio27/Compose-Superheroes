@@ -1,6 +1,7 @@
 package com.amrubio27.compose_superheroes.app.navigation
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -13,7 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -55,8 +58,8 @@ fun MyNavigationBarAdvanced(
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface,
+        modifier = modifier.clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         tonalElevation = MaterialTheme.dimens.elevationSmall
     ) {
         itemList.forEach { navItem ->
@@ -88,25 +91,29 @@ fun MyNavigationBarAdvanced(
             }
         }
     }
-
 }
 
 @Composable
 fun RowScope.MyOwnItem(navItem: NavItem<out Any>, isSelected: Boolean, onClick: () -> Unit) {
     NavigationBarItem(
-        selected = isSelected, onClick = { onClick() }, icon = {
+        selected = isSelected,
+        onClick = { onClick() },
+        icon = {
             Icon(
-                imageVector = navItem.icon, contentDescription = navItem.name
+                imageVector = navItem.icon,
+                contentDescription = navItem.name
             )
-        }, label = {
+        },
+        label = {
             Text(navItem.name)
-        }, alwaysShowLabel = true, colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = MaterialTheme.colorScheme.onSurface,
-            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
-            indicatorColor = MaterialTheme.colorScheme.surface,
-            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
-            selectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
+        },
+        alwaysShowLabel = true,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unselectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),
+            indicatorColor = MaterialTheme.colorScheme.primary,
+            unselectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),
+            selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
-
 }

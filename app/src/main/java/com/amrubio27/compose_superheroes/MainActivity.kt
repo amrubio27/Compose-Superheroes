@@ -15,6 +15,7 @@ import com.amrubio27.compose_superheroes.app.navigation.FeatureB
 import com.amrubio27.compose_superheroes.app.navigation.Home
 import com.amrubio27.compose_superheroes.app.navigation.MyNavigationBarAdvanced
 import com.amrubio27.compose_superheroes.app.navigation.NavigationWrapper
+import com.amrubio27.compose_superheroes.ui.theme.ComposeSuperheroesTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -22,28 +23,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
+            ComposeSuperheroesTheme {
+                val navController = rememberNavController()
 
-            val currentRoute =
-                navController.currentBackStackEntryAsState().value?.destination?.route
-            val showBottomNav = currentRoute in listOf(
-                Home::class.qualifiedName,
-                FeatureB::class.qualifiedName
-            )
+                val currentRoute =
+                    navController.currentBackStackEntryAsState().value?.destination?.route
+                val showBottomNav = currentRoute in listOf(
+                    Home::class.qualifiedName,
+                    FeatureB::class.qualifiedName
+                )
 
-            Scaffold(
-                bottomBar = {
-                    if (showBottomNav) {
-                        MyNavigationBarAdvanced(navController = navController)
+                Scaffold(
+                    bottomBar = {
+                        if (showBottomNav) {
+                            MyNavigationBarAdvanced(navController = navController)
+                        }
                     }
-                }
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                ) {
-                    NavigationWrapper(navController = navController)
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        NavigationWrapper(navController = navController)
+                    }
                 }
             }
         }

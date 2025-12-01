@@ -1,7 +1,10 @@
 package com.amrubio27.compose_superheroes.features.detail.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.amrubio27.compose_superheroes.app.navigation.Detail
 import com.amrubio27.compose_superheroes.features.list.domain.GetSuperHeroByIdUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,12 +15,18 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class SuperHeroesDetailViewModel(
+    savedStateHandle: SavedStateHandle,
     private val getSuperHeroByIdUseCase: GetSuperHeroByIdUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SuperHeroesDetailUiState())
     val uiState: StateFlow<SuperHeroesDetailUiState> = _uiState
 
-    fun fetchSuperHeroById(id: Int) {
+    init {
+        val id = savedStateHandle.toRoute<Detail>().id
+        fetchSuperHeroById(id)
+    }
+
+    private fun fetchSuperHeroById(id: Int) {
         _uiState.update {
             it.copy(isLoading = true, error = null)
         }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -71,7 +72,10 @@ fun SwipeableSuperheroItem(
 
     SwipeToDismissBox(
         state = dismissState,
-        modifier = modifier,
+        modifier = modifier
+            .clip(
+                MaterialTheme.shapes.small
+            ),
         enableDismissFromStartToEnd = false, // Solo permitimos swipe de derecha a izquierda
         backgroundContent = {
             // Contenido del fondo que se muestra durante el swipe

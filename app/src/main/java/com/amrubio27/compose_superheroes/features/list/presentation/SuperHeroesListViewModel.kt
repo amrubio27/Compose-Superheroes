@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,7 +45,7 @@ class SuperHeroesListViewModel(
     // Extraemos la lógica de filtrado para que el combine sea legible
     private val _filteredHeroesFlow = combine(
         _allSuperHeroes,
-        _searchQuery,
+        _searchQuery.debounce(300L),
         _pendingDeletion
     ) { heroes, query, pending ->
         applyFilters(heroes, query, pending)
@@ -54,6 +55,7 @@ class SuperHeroesListViewModel(
     // CRÍTICO: Añadimos _searchQuery y _pendingDeletion aquí también.
     // Aunque _filteredHeroesFlow ya depende de ellos, si usas .value dentro del lambda
     // te arriesgas a "glitches" (milisegundos donde la lista está filtrada pero el texto del searchbox es viejo).
+
     val uiState: StateFlow<SuperHeroesListUiState> = combine(
         _filteredHeroesFlow,
         _uiFlags,
@@ -102,27 +104,24 @@ class SuperHeroesListViewModel(
         }
 
         viewModelScope.launch {
-            getSuperHeroesListUseCase(forceRefresh = isRefresh).fold(
-                onSuccess = { heroes ->
-                    _allSuperHeroes.value = heroes.map { it.toItemModel() }
-                    _uiFlags.update {
-                        if (isRefresh) {
-                            it.copy(isRefreshing = false)
-                        } else {
-                            it.copy(isLoading = false)
-                        }
-                    }
-                },
-                onFailure = { error ->
-                    _uiFlags.update {
-                        if (isRefresh) {
-                            it.copy(isRefreshing = false, error = error as? ErrorApp)
-                        } else {
-                            it.copy(isLoading = false, error = error as? ErrorApp)
-                        }
+            getSuperHeroesListUseCase(forceRefresh = isRefresh).fold(onSuccess = { heroes ->
+                _allSuperHeroes.value = heroes.map { it.toItemModel() }
+                _uiFlags.update {
+                    if (isRefresh) {
+                        it.copy(isRefreshing = false)
+                    } else {
+                        it.copy(isLoading = false)
                     }
                 }
-            )
+            }, onFailure = { error ->
+                _uiFlags.update {
+                    if (isRefresh) {
+                        it.copy(isRefreshing = false, error = error as? ErrorApp)
+                    } else {
+                        it.copy(isLoading = false, error = error as? ErrorApp)
+                    }
+                }
+            })
         }
     }
 
@@ -170,26 +169,23 @@ class SuperHeroesListViewModel(
         viewModelScope.launch { // Lanzamos corrutina para la operación de red
             val result = deleteSuperHeroUseCase(heroId)
 
-            result.fold(
-                onSuccess = {
-                    // CRÍTICO: Race Condition Fix
-                    // Solo limpiamos el pendingDeletion si coincide con el que acabamos de borrar.
-                    // Si el usuario borró otro item mientras esto se procesaba, no queremos quitarle el snackbar del nuevo.
-                    _pendingDeletion.update { current ->
-                        if (current?.deletedHero?.id == heroId) null else current
-                    }
-
-                    // Eliminamos definitivamente de la lista maestra
-                    _allSuperHeroes.update { list -> list.filter { it.id != heroId } }
-                },
-                onFailure = { error ->
-                    // Si falla, restauramos la vista (quitamos el pending) y mostramos error
-                    _pendingDeletion.update { current ->
-                        if (current?.deletedHero?.id == heroId) null else current
-                    }
-                    _uiFlags.update { it.copy(error = error as? ErrorApp) }
+            result.fold(onSuccess = {
+                // CRÍTICO: Race Condition Fix
+                // Solo limpiamos el pendingDeletion si coincide con el que acabamos de borrar.
+                // Si el usuario borró otro item mientras esto se procesaba, no queremos quitarle el snackbar del nuevo.
+                _pendingDeletion.update { current ->
+                    if (current?.deletedHero?.id == heroId) null else current
                 }
-            )
+
+                // Eliminamos definitivamente de la lista maestra
+                _allSuperHeroes.update { list -> list.filter { it.id != heroId } }
+            }, onFailure = { error ->
+                // Si falla, restauramos la vista (quitamos el pending) y mostramos error
+                _pendingDeletion.update { current ->
+                    if (current?.deletedHero?.id == heroId) null else current
+                }
+                _uiFlags.update { it.copy(error = error as? ErrorApp) }
+            })
         }
     }
 
@@ -199,11 +195,9 @@ class SuperHeroesListViewModel(
         query: String,
         pending: OptimisticDeleteState?
     ): List<SuperHeroItemModel> {
-        return heroes
-            .filter { it.name.contains(query, ignoreCase = true) }
-            .let { list ->
-                if (pending != null) list.filter { it.id != pending.deletedHero.id } else list
-            }
+        return heroes.filter { it.name.contains(query, ignoreCase = true) }.let { list ->
+            if (pending != null) list.filter { it.id != pending.deletedHero.id } else list
+        }
     }
 
     // Flags UI Helper
