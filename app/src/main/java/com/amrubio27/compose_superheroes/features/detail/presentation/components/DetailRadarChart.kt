@@ -64,13 +64,14 @@ fun RadarChart(
     val density = LocalDensity.current
     val labelTextSize = with(density) { 12.sp.toPx() }
 
+    val webColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+
     Canvas(modifier = modifier) {
         val center = Offset(size.width / 2, size.height / 2)
         val radius = (minOf(size.width, size.height) / 2) * 0.8f
         val angleStep = (2 * Math.PI / labels.size).toFloat()
 
         // Draw Web
-        val webColor = Color.LightGray.copy(alpha = 0.5f)
         for (i in 1..4) {
             val r = radius * (i / 4f)
             drawPath(

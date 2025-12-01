@@ -41,7 +41,7 @@ fun SuperheroesSearchBar(
                     contentDescription = null
                 )
             },
-            shape = MaterialTheme.shapes.large,
+            shape = MaterialTheme.shapes.extraLarge,
             modifier = Modifier.fillMaxWidth()
         )
     }

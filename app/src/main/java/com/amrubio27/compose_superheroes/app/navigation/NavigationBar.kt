@@ -59,7 +59,7 @@ fun MyNavigationBarAdvanced(
 
     NavigationBar(
         modifier = modifier.clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
         tonalElevation = MaterialTheme.dimens.elevationSmall
     ) {
         itemList.forEach { navItem ->
@@ -91,25 +91,29 @@ fun MyNavigationBarAdvanced(
             }
         }
     }
-
 }
 
 @Composable
 fun RowScope.MyOwnItem(navItem: NavItem<out Any>, isSelected: Boolean, onClick: () -> Unit) {
     NavigationBarItem(
-        selected = isSelected, onClick = { onClick() }, icon = {
+        selected = isSelected,
+        onClick = { onClick() },
+        icon = {
             Icon(
-                imageVector = navItem.icon, contentDescription = navItem.name
+                imageVector = navItem.icon,
+                contentDescription = navItem.name
             )
-        }, label = {
+        },
+        label = {
             Text(navItem.name)
-        }, alwaysShowLabel = true, colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = MaterialTheme.colorScheme.onSurface,
-            unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
-            indicatorColor = MaterialTheme.colorScheme.surface,
-            unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.disabled),
-            selectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ContentAlpha.high)
+        },
+        alwaysShowLabel = true,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+            unselectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),
+            indicatorColor = MaterialTheme.colorScheme.primary,
+            unselectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),
+            selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
-
 }
