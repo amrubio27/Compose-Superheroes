@@ -17,8 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.AppearanceCard
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.BiographyCard
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.ConnectionsCard
@@ -28,6 +29,7 @@ import com.amrubio27.compose_superheroes.features.detail.presentation.components
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.RadarChartContainer
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.SectionTitle
 import com.amrubio27.compose_superheroes.features.detail.presentation.components.WorkCard
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,39 +86,39 @@ fun DetailContent(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMedium),
     ) {
         item {
             HeroImageHeader(hero = hero)
         }
 
         item {
-            SectionTitle(title = "Power Stats")
+            SectionTitle(title = stringResource(R.string.detail_section_power_stats))
             RadarChartContainer(stats = hero.powerStats)
         }
 
         item {
-            SectionTitle(title = "Biography")
+            SectionTitle(title = stringResource(R.string.detail_section_biography))
             BiographyCard(bio = hero.biography)
         }
 
         item {
-            SectionTitle(title = "Appearance")
+            SectionTitle(title = stringResource(R.string.detail_section_appearance))
             AppearanceCard(appearance = hero.appearance)
         }
 
         item {
-            SectionTitle(title = "Work")
+            SectionTitle(title = stringResource(R.string.detail_section_work))
             WorkCard(work = hero.work)
         }
 
         item {
-            SectionTitle(title = "Connections")
+            SectionTitle(title = stringResource(R.string.detail_section_connections))
             ConnectionsCard(connections = hero.connections)
         }
 
         item {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimens.paddingExtraLarge))
         }
     }
 }

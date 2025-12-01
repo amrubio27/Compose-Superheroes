@@ -20,18 +20,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.amrubio27.compose_superheroes.features.detail.presentation.SuperHeroDetailUiModel
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 @Composable
 fun HeroImageHeader(hero: SuperHeroDetailUiModel) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp)
+            .height(MaterialTheme.dimens.heroImageHeightLarge)
     ) {
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -76,7 +76,7 @@ fun HeroImageHeader(hero: SuperHeroDetailUiModel) {
         Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(16.dp)
+                .padding(MaterialTheme.dimens.paddingMedium)
         ) {
             Text(
                 text = hero.name,

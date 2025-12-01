@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.amrubio27.compose_superheroes.features.detail.presentation.PowerStatsUi
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -31,7 +31,7 @@ fun RadarChartContainer(stats: PowerStatsUi) {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.2f)
-            .padding(16.dp),
+            .padding(MaterialTheme.dimens.paddingMedium),
         contentAlignment = Alignment.Center
     ) {
         RadarChart(

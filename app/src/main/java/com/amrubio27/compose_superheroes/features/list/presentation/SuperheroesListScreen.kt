@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorMapper
 import com.amrubio27.compose_superheroes.app.presentation.error.ErrorScreen
-import com.amrubio27.compose_superheroes.app.presentation.error.ErrorUiModel
 import com.amrubio27.compose_superheroes.features.list.presentation.components.SuperheroesSearchBar
 import com.amrubio27.compose_superheroes.features.list.presentation.components.superHeroItem.SwipeableSuperheroItem
 import com.amrubio27.compose_superheroes.ui.theme.dimens
@@ -109,7 +108,7 @@ fun SuperheroesListScreen(
 
                 uiState.error != null && uiState.superHeroes.isEmpty() -> {
                     ErrorScreen(
-                        errorUiModel = uiState.error?.let { errorMapper.map(it) } as ErrorUiModel,
+                        errorUiModel = errorMapper.map(uiState.error!!),
                         onRetry = { viewModel.fetchSuperHeroes() },
                         modifier = Modifier.fillMaxSize()
                     )

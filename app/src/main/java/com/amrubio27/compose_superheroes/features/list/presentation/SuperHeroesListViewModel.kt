@@ -45,7 +45,7 @@ class SuperHeroesListViewModel(
     // Extraemos la lógica de filtrado para que el combine sea legible
     private val _filteredHeroesFlow = combine(
         _allSuperHeroes,
-        _searchQuery,
+        _searchQuery.debounce(300L),
         _pendingDeletion
     ) { heroes, query, pending ->
         applyFilters(heroes, query, pending)
@@ -70,7 +70,7 @@ class SuperHeroesListViewModel(
             pendingDeletion = pending,
             searchQuery = query
         )
-    }.debounce(300L).stateIn(
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = SuperHeroesListUiState(isLoading = true)

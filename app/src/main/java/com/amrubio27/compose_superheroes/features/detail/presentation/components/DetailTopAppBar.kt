@@ -20,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.amrubio27.compose_superheroes.R
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +35,8 @@ fun DetailTopAppBar(
         navigationIcon = {
             Box(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(40.dp)
+                    .padding(MaterialTheme.dimens.paddingSmall)
+                    .size(MaterialTheme.dimens.iconSizeLarge)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
                     .clickable(onClick = onNavigateBack),

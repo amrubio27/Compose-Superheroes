@@ -109,7 +109,7 @@ fun RowScope.MyOwnItem(navItem: NavItem<out Any>, isSelected: Boolean, onClick: 
         },
         alwaysShowLabel = true,
         colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unselectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),
             indicatorColor = MaterialTheme.colorScheme.primary,
             unselectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = ContentAlpha.medium),

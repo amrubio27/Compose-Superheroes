@@ -17,14 +17,18 @@ data class Dimens(
     val paddingExtraSmall: Dp = 4.dp,
     val paddingSmall: Dp = 8.dp,
     val paddingMedium: Dp = 16.dp,
+    val paddingMediumSmall: Dp = 12.dp,
     val paddingLarge: Dp = 24.dp,
+    val paddingExtraLarge: Dp = 32.dp,
 
     // Tamaños de componentes
     val listItemHeight: Dp = 48.dp,
     val iconSizeSmall: Dp = 24.dp,
+    val iconSizeLarge: Dp = 40.dp,
     val iconSizeMedium: Dp = 48.dp,
     val errorImageSize: Dp = 120.dp,
     val heroImageHeight: Dp = 300.dp,
+    val heroImageHeightLarge: Dp = 400.dp,
 
     // Elevaciones
     val elevationSmall: Dp = 4.dp,

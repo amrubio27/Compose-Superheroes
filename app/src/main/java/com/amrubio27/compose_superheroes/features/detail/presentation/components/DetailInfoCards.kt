@@ -14,12 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.amrubio27.compose_superheroes.R
 import com.amrubio27.compose_superheroes.features.detail.presentation.AppearanceUi
 import com.amrubio27.compose_superheroes.features.detail.presentation.BiographyUi
 import com.amrubio27.compose_superheroes.features.detail.presentation.ConnectionsUi
 import com.amrubio27.compose_superheroes.features.detail.presentation.WorkUi
+import com.amrubio27.compose_superheroes.ui.theme.dimens
 
 @Composable
 fun SectionTitle(title: String) {
@@ -27,47 +29,55 @@ fun SectionTitle(title: String) {
         text = title,
         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
         color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier.padding(
+            horizontal = MaterialTheme.dimens.paddingMedium,
+            vertical = MaterialTheme.dimens.paddingSmall
+        )
     )
 }
 
 @Composable
 fun BiographyCard(bio: BiographyUi) {
     InfoCard {
-        InfoItem("Full Name", bio.fullName)
-        InfoItem("Alter Egos", bio.alterEgos)
-        InfoItem("Place of Birth", bio.placeOfBirth)
-        InfoItem("First Appearance", bio.firstAppearance)
-        InfoItem("Publisher", bio.publisher)
-        InfoItem("Alignment", bio.alignment.replaceFirstChar { it.uppercase() })
+        InfoItem(stringResource(R.string.detail_bio_full_name), bio.fullName)
+        InfoItem(stringResource(R.string.detail_bio_alter_egos), bio.alterEgos)
+        InfoItem(stringResource(R.string.detail_bio_place_of_birth), bio.placeOfBirth)
+        InfoItem(stringResource(R.string.detail_bio_first_appearance), bio.firstAppearance)
+        InfoItem(stringResource(R.string.detail_bio_publisher), bio.publisher)
+        InfoItem(
+            stringResource(R.string.detail_bio_alignment),
+            bio.alignment.replaceFirstChar { it.uppercase() })
     }
 }
 
 @Composable
 fun AppearanceCard(appearance: AppearanceUi) {
     InfoCard {
-        InfoItem("Gender", appearance.gender)
-        InfoItem("Race", appearance.race)
-        InfoItem("Height", appearance.height)
-        InfoItem("Weight", appearance.weight)
-        InfoItem("Eye Color", appearance.eyeColor)
-        InfoItem("Hair Color", appearance.hairColor)
+        InfoItem(stringResource(R.string.detail_appearance_gender), appearance.gender)
+        InfoItem(stringResource(R.string.detail_appearance_race), appearance.race)
+        InfoItem(stringResource(R.string.detail_appearance_height), appearance.height)
+        InfoItem(stringResource(R.string.detail_appearance_weight), appearance.weight)
+        InfoItem(stringResource(R.string.detail_appearance_eye_color), appearance.eyeColor)
+        InfoItem(stringResource(R.string.detail_appearance_hair_color), appearance.hairColor)
     }
 }
 
 @Composable
 fun WorkCard(work: WorkUi) {
     InfoCard {
-        InfoItem("Occupation", work.occupation)
-        InfoItem("Base", work.base)
+        InfoItem(stringResource(R.string.detail_work_occupation), work.occupation)
+        InfoItem(stringResource(R.string.detail_work_base), work.base)
     }
 }
 
 @Composable
 fun ConnectionsCard(connections: ConnectionsUi) {
     InfoCard {
-        InfoItem("Group Affiliation", connections.groupAffiliation)
-        InfoItem("Relatives", connections.relatives)
+        InfoItem(
+            stringResource(R.string.detail_connections_group_affiliation),
+            connections.groupAffiliation
+        )
+        InfoItem(stringResource(R.string.detail_connections_relatives), connections.relatives)
     }
 }
 
@@ -76,15 +86,15 @@ fun InfoCard(content: @Composable () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = MaterialTheme.dimens.paddingMedium),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(MaterialTheme.dimens.paddingMedium)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(MaterialTheme.dimens.paddingMedium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.paddingMediumSmall)
         ) {
             content()
         }
@@ -104,7 +114,7 @@ fun InfoItem(label: String, value: String) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimens.paddingExtraSmall))
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     }
 }

@@ -36,4 +36,35 @@
     <!-- Navigation -->
     <string name="nav_superhero_list">Superhero List</string>
     <string name="nav_feature_b">Feature B</string>
+
+    <!-- Detail Screen Sections -->
+    <string name="detail_section_power_stats">Power Stats</string>
+    <string name="detail_section_biography">Biography</string>
+    <string name="detail_section_appearance">Appearance</string>
+    <string name="detail_section_work">Work</string>
+    <string name="detail_section_connections">Connections</string>
+
+    <!-- Biography Labels -->
+    <string name="detail_bio_full_name">Full Name</string>
+    <string name="detail_bio_alter_egos">Alter Egos</string>
+    <string name="detail_bio_place_of_birth">Place of Birth</string>
+    <string name="detail_bio_first_appearance">First Appearance</string>
+    <string name="detail_bio_publisher">Publisher</string>
+    <string name="detail_bio_alignment">Alignment</string>
+
+    <!-- Appearance Labels -->
+    <string name="detail_appearance_gender">Gender</string>
+    <string name="detail_appearance_race">Race</string>
+    <string name="detail_appearance_height">Height</string>
+    <string name="detail_appearance_weight">Weight</string>
+    <string name="detail_appearance_eye_color">Eye Color</string>
+    <string name="detail_appearance_hair_color">Hair Color</string>
+
+    <!-- Work Labels -->
+    <string name="detail_work_occupation">Occupation</string>
+    <string name="detail_work_base">Base</string>
+
+    <!-- Connections Labels -->
+    <string name="detail_connections_group_affiliation">Group Affiliation</string>
+    <string name="detail_connections_relatives">Relatives</string>
 </resources>
