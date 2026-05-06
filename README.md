@@ -42,13 +42,12 @@
 
 ---
 
-## 🎯 Enfoque para reclutadores / Recruiter-Focused Highlights
+## 🎯 Highlights
 
 - ✅ **Clean Architecture real**, no solo en el nombre.  
 - ✅ **Buenas prácticas Kotlin** con código legible y mantenible.  
 - ✅ **Separación de responsabilidades** clara y testable.  
-- ✅ **Stack moderno Android**: Compose + Koin + Ktor.  
-- ✅ Preparado para escalabilidad y trabajo en equipo.
+- ✅ **Stack moderno Android**: Compose + Koin + Ktor.
 
 ---
 
@@ -60,11 +59,6 @@
 - **Ktor**
 - **Clean Architecture**
 - **SOLID**
-
----
-
-## 📷 Screenshots
-*(Agrega aquí capturas si quieres destacar UI)*
 
 ---
 
